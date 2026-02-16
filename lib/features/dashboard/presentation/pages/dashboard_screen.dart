@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import '../bloc/dashboard_bloc.dart';
+import 'contacts_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -23,7 +24,7 @@ class DashboardScreen extends StatelessWidget {
                 _buildPaymentsAndTransfers(context, state),
                 if (state.paymentTabIndex == 0) ...[
                   _buildSectionHeader('UPI Payments'),
-                  _buildUPIPaymentsGrid(),
+                  _buildUPIPaymentsGrid(context),
                 ],
                 _buildSectionHeader('Deposits'),
                 _buildDepositsGrid(),
@@ -221,7 +222,7 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
               const Divider(),
-              _buildTabContent(state.paymentTabIndex),
+              _buildTabContent(context, state.paymentTabIndex),
             ],
           ),
         ),
@@ -229,7 +230,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTabContent(int paymentTabIndex) {
+  Widget _buildTabContent(BuildContext context, int paymentTabIndex) {
     switch (paymentTabIndex) {
       case 0:
         return Padding(
@@ -326,9 +327,11 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildUPIPaymentsGrid() {
+  Widget _buildUPIPaymentsGrid(BuildContext context) {
     return _buildGrid([
-      _gridItem(Icons.phone_android, 'Pay to mobile\nor contact'),
+      _gridItem(Icons.phone_android, 'Pay to mobile\nor contact', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactsScreen()));
+      }),
       _gridItem(Icons.qr_code, 'Pay UPI ID or\nNumber'),
       _gridItem(Icons.account_balance, 'Pay to Bank\nA/C'),
       _gridItem(Icons.history, 'View\nTransaction'),
@@ -399,18 +402,21 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _gridItem(IconData icon, String label, {String? subLabel}) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: AppColors.primaryPurple, size: 28),
-        const SizedBox(height: 8),
-        Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: AppColors.textDark, fontWeight: FontWeight.w500)),
-        if (subLabel != null) ...[
-          const SizedBox(height: 4),
-          Text(subLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, color: AppColors.textGrey)),
+  Widget _gridItem(IconData icon, String label, {String? subLabel, VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: AppColors.primaryPurple, size: 28),
+          const SizedBox(height: 8),
+          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: AppColors.textDark, fontWeight: FontWeight.w500)),
+          if (subLabel != null) ...[
+            const SizedBox(height: 4),
+            Text(subLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, color: AppColors.textGrey)),
+          ],
         ],
-      ],
+      ),
     );
   }
 
