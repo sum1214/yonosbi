@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/core/widgets/loading_overlay.dart';
-import '../bloc/payment_bloc.dart';
+import 'package:yonosbi/features/payments/upi/presentation/bloc/payment_bloc.dart';
 import 'upi_pin_screen.dart';
 
 class TransactionScreen extends StatefulWidget {
@@ -234,7 +234,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
     // Clean phone number: remove +91 and any non-digit characters
     String cleanedPhone = widget.contactPhone.replaceAll(RegExp(r'^(\+91|91)'), '').replaceAll(RegExp(r'[^0-9]'), '');
     
-    final String upiId = cleanedPhone.isNotEmpty ? '$cleanedPhone@mbkns' : 'user@upi';
+    final String upiId = cleanedPhone.isNotEmpty ? '$cleanedPhone@sbi' : widget.contactName.replaceAll(" ", "").toLowerCase()+"@sbi";
 
     return BlocBuilder<PaymentBloc, PaymentState>(
       builder: (context, state) {

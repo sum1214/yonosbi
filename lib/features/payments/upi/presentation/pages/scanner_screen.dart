@@ -21,22 +21,44 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   void _handleDetection(String? rawValue) {
     if (_isScanned || rawValue == null) return;
-    setState(() {
-      _isScanned = true;
-    });
+    
+    String address = '';
+    String name = 'Scanned Recipient';
 
-    // In a real app, you'd parse the UPI URI (upi://pay?pa=...)
-    String contactPhone = rawValue.split('pa=').last.split('&').first;
+    // 1. Handle Standard UPI URL (upi://pay?pa=...)
+    if (rawValue.startsWith('upi://')) {
+      final uri = Uri.parse(rawValue);
+      address = uri.queryParameters['pa'] ?? '';
+      name = uri.queryParameters['pn'] ?? (address.contains('@') ? address.split('@').first : 'Recipient');
+    } 
+    // 2. Handle Plain UPI ID (e.g. shubham@sbi)
+    else if (rawValue.contains('@')) {
+      address = rawValue;
+      name = rawValue.split('@').first;
+    }
+    // 3. Handle Plain Mobile Number
+    else if (RegExp(r'^[0-9+]+$').hasMatch(rawValue) && rawValue.length >= 10) {
+      address = rawValue;
+      name = 'Contact Number';
+    }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TransactionScreen(
-          contactName: 'Scanned Recipient',
-          contactPhone: contactPhone,
+    if (address.isNotEmpty) {
+      setState(() {
+        _isScanned = true;
+      });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TransactionScreen(
+            contactName: name,
+            contactPhone: address,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      debugPrint('Detected non-payment barcode: $rawValue');
+    }
   }
 
   @override

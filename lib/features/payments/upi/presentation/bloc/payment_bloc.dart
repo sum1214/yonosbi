@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fast_contacts/fast_contacts.dart';
 
 part 'payment_event.dart';
 part 'payment_state.dart';
@@ -12,6 +13,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<ProcessPayment>(_onProcessPayment);
     on<SelectContact>(_onSelectContact);
     on<ResetBalanceVisibility>(_onResetBalanceVisibility);
+    on<SearchRecipient>(_onSearchRecipient);
   }
 
   Future<void> _onLoadBalance(LoadBalance event, Emitter<PaymentState> emit) async {
@@ -25,7 +27,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _onCheckBalance(CheckBalance event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true, showBalance: false));
-    // Simulate API call
     await Future.delayed(const Duration(seconds: 2));
     final prefs = await SharedPreferences.getInstance();
     double balance = prefs.getDouble('account_balance') ?? 10000.0;
@@ -46,7 +47,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _onSelectContact(SelectContact event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true));
-    // Simulate fetching contact details or some processing
     await Future.delayed(const Duration(seconds: 1));
     emit(state.copyWith(isLoading: false, showBalance: false));
     event.onComplete(event.contact);
@@ -54,5 +54,43 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   void _onResetBalanceVisibility(ResetBalanceVisibility event, Emitter<PaymentState> emit) {
     emit(state.copyWith(showBalance: false));
+  }
+
+  Future<void> _onSearchRecipient(SearchRecipient event, Emitter<PaymentState> emit) async {
+    final query = event.query;
+    if (query.length == 10 && RegExp(r'^[0-9]+$').hasMatch(query)) {
+      emit(state.copyWith(isLoading: true));
+      
+      // Simulated API delay for name lookup
+      await Future.delayed(const Duration(seconds: 1));
+      
+      final contacts = await FastContacts.getAllContacts();
+      String name = 'UNKNOWN RECIPIENT';
+      String upiId = '$query@mbkns';
+      
+      for (var contact in contacts) {
+        for (var phone in contact.phones) {
+          if (phone.number.replaceAll(RegExp(r'[^0-9]'), '').endsWith(query)) {
+            name = contact.displayName;
+            break;
+          }
+        }
+      }
+      
+      emit(state.copyWith(
+        isLoading: false,
+        searchResultName: name,
+        searchResultUpi: upiId,
+        showRecipient: true,
+      ));
+    } else if (query.contains('@')) {
+      emit(state.copyWith(
+        searchResultName: query.split('@').first.toUpperCase(),
+        searchResultUpi: query,
+        showRecipient: true,
+      ));
+    } else {
+      emit(state.copyWith(showRecipient: false));
+    }
   }
 }
