@@ -165,11 +165,11 @@ class DashboardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('TRANSACTION ACCOUNTS (XX)', style: TextStyle(color: Colors.white, fontSize: 12)),
-              const Icon(Icons.visibility_off_outlined, color: Colors.white, size: 18),
+              Text('TRANSACTION ACCOUNTS (XX)', style: TextStyle(color: Colors.white, fontSize: 12)),
+              Icon(Icons.visibility_off_outlined, color: Colors.white, size: 18),
             ],
           ),
           const SizedBox(height: 10),
@@ -478,11 +478,11 @@ class DashboardScreen extends StatelessWidget {
         backgroundColor: AppColors.primaryPurple,
         elevation: 4,
         shape: const CircleBorder(),
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.qr_code_scanner, color: Colors.white, size: 28),
-            const Text('Scan QR', style: TextStyle(color: Colors.white, fontSize: 8)),
+            Icon(Icons.qr_code_scanner, color: Colors.white, size: 28),
+            Text('Scan QR', style: TextStyle(color: Colors.white, fontSize: 8)),
           ],
         ),
       ),
