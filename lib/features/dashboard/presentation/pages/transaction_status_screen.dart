@@ -94,15 +94,17 @@ class TransactionStatusScreen extends StatelessWidget {
         children: [
           CircleAvatar(
             backgroundColor: Colors.purple.shade50,
-            child: Text(contactName[0], style: const TextStyle(color: AppColors.primaryPurple)),
+            child: Text(contactName.isNotEmpty ? contactName[0] : '?', style: const TextStyle(color: AppColors.primaryPurple)),
           ),
           const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(contactName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              Text(upiId, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(contactName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(upiId, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
           )
         ],
       ),
@@ -223,9 +225,12 @@ class TransactionStatusScreen extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {
           if (isSuccess) {
+            // Clears all screens and goes back to Dashboard
             Navigator.of(context).popUntil((route) => route.isFirst);
           } else {
-            Navigator.of(context).pop();
+            // Pops twice: Status -> UPI PIN -> Amount Screen
+            Navigator.of(context).pop(); // Status screen pop
+            Navigator.of(context).pop(); // UPI PIN screen pop
           }
         },
         style: ElevatedButton.styleFrom(
