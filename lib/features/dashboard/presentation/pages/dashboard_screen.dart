@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import '../bloc/dashboard_bloc.dart';
 import 'contacts_screen.dart';
+import 'scanner_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -46,7 +47,7 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
           bottomNavigationBar: _buildBottomNav(context, state),
-          floatingActionButton: _buildScanQRButton(),
+          floatingActionButton: _buildScanQRButton(context),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         );
       },
@@ -332,7 +333,9 @@ class DashboardScreen extends StatelessWidget {
       _gridItem(Icons.phone_android, 'Pay to mobile\nor contact', onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactsScreen()));
       }),
-      _gridItem(Icons.qr_code, 'Pay UPI ID or\nNumber'),
+      _gridItem(Icons.qr_code, 'Pay UPI ID or\nNumber', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ScannerScreen()));
+      }),
       _gridItem(Icons.account_balance, 'Pay to Bank\nA/C'),
       _gridItem(Icons.history, 'View\nTransaction'),
     ]);
@@ -474,13 +477,15 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScanQRButton() {
+  Widget _buildScanQRButton(BuildContext context) {
     return Container(
       height: 65,
       width: 65,
       margin: const EdgeInsets.only(top: 30),
       child: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const ScannerScreen()));
+        },
         backgroundColor: AppColors.primaryPurple,
         elevation: 4,
         shape: const CircleBorder(),

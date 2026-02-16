@@ -13,7 +13,10 @@ class NoUpiScreen extends StatelessWidget {
     final String initials = displayName.isNotEmpty
         ? displayName.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase()
         : '?';
-    final String phone = contact.phones.isNotEmpty ? contact.phones.first.number : '';
+    
+    String rawPhone = contact.phones.isNotEmpty ? contact.phones.first.number : '';
+    // Clean phone number: remove +91 and any non-digit characters
+    String cleanedPhone = rawPhone.replaceAll(RegExp(r'^(\+91|91)'), '').replaceAll(RegExp(r'[^0-9]'), '');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -53,7 +56,7 @@ class NoUpiScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Text(
-                          phone,
+                          cleanedPhone.isNotEmpty ? cleanedPhone : rawPhone,
                           style: TextStyle(color: Colors.blue.shade900, fontSize: 12),
                         ),
                       ),
@@ -84,7 +87,7 @@ class NoUpiScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Your contact $displayName ($phone) is not linked to a UPI id.',
+                        'Your contact $displayName (${cleanedPhone.isNotEmpty ? cleanedPhone : rawPhone}) is not linked to a UPI id.',
                         style: const TextStyle(fontSize: 12, color: Colors.brown),
                       ),
                     ),
