@@ -225,9 +225,12 @@ class _TransactionScreenState extends State<TransactionScreen> {
     final String initials = displayName.isNotEmpty
         ? displayName.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase()
         : '?';
-    final String upiId = widget.contact.phones.isNotEmpty 
-        ? '${widget.contact.phones.first.number}@mbkns' 
-        : 'user@upi';
+    
+    String rawPhone = widget.contact.phones.isNotEmpty ? widget.contact.phones.first.number : '';
+    // Clean phone number: remove +91 and any non-digit characters (like - or spaces)
+    String cleanedPhone = rawPhone.replaceAll(RegExp(r'^(\+91|91)'), '').replaceAll(RegExp(r'[^0-9]'), '');
+    
+    final String upiId = cleanedPhone.isNotEmpty ? '$cleanedPhone@mbkns' : 'user@upi';
 
     return BlocBuilder<PaymentBloc, PaymentState>(
       builder: (context, state) {
