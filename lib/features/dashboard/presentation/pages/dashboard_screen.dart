@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import '../bloc/dashboard_bloc.dart';
+import 'contacts_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -19,11 +20,11 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 _buildTopTabs(),
                 _buildQuickActions(),
-                _buildTransactionCard(),
+                _buildBankingContent(),
                 _buildPaymentsAndTransfers(context, state),
                 if (state.paymentTabIndex == 0) ...[
                   _buildSectionHeader('UPI Payments'),
-                  _buildUPIPaymentsGrid(),
+                  _buildUPIPaymentsGrid(context),
                 ],
                 _buildSectionHeader('Deposits'),
                 _buildDepositsGrid(),
@@ -150,46 +151,24 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.cardGradientStart, AppColors.cardGradientEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  Widget _buildBankingContent() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: SizedBox(
+        height: 175,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 60,
+              child: TransactionCard(),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              flex: 40,
+              child: PersonalFinanceCard(),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('TRANSACTION ACCOUNTS (XX)', style: TextStyle(color: Colors.white, fontSize: 12)),
-              const Icon(Icons.visibility_off_outlined, color: Colors.white, size: 18),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Text('Combined Balance', style: TextStyle(color: Colors.white70, fontSize: 12)),
-          const Text('₹ XXXX.xx', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                onTap: () {},
-                child: const Text('View Accounts', style: TextStyle(color: Colors.white, decoration: TextDecoration.underline)),
-              ),
-              InkWell(
-                onTap: () {},
-                child: const Text('Transactions', style: TextStyle(color: Colors.white, decoration: TextDecoration.underline)),
-              ),
-            ],
-          )
-        ],
       ),
     );
   }
@@ -221,7 +200,7 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
               const Divider(),
-              _buildTabContent(state.paymentTabIndex),
+              _buildTabContent(context, state.paymentTabIndex),
             ],
           ),
         ),
@@ -229,7 +208,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTabContent(int paymentTabIndex) {
+  Widget _buildTabContent(BuildContext context, int paymentTabIndex) {
     switch (paymentTabIndex) {
       case 0:
         return Padding(
@@ -326,9 +305,11 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildUPIPaymentsGrid() {
+  Widget _buildUPIPaymentsGrid(BuildContext context) {
     return _buildGrid([
-      _gridItem(Icons.phone_android, 'Pay to mobile\nor contact'),
+      _gridItem(Icons.phone_android, 'Pay to mobile\nor contact', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ContactsScreen()));
+      }),
       _gridItem(Icons.qr_code, 'Pay UPI ID or\nNumber'),
       _gridItem(Icons.account_balance, 'Pay to Bank\nA/C'),
       _gridItem(Icons.history, 'View\nTransaction'),
@@ -399,18 +380,21 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _gridItem(IconData icon, String label, {String? subLabel}) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: AppColors.primaryPurple, size: 28),
-        const SizedBox(height: 8),
-        Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: AppColors.textDark, fontWeight: FontWeight.w500)),
-        if (subLabel != null) ...[
-          const SizedBox(height: 4),
-          Text(subLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, color: AppColors.textGrey)),
+  Widget _gridItem(IconData icon, String label, {String? subLabel, VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: AppColors.primaryPurple, size: 28),
+          const SizedBox(height: 8),
+          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: AppColors.textDark, fontWeight: FontWeight.w500)),
+          if (subLabel != null) ...[
+            const SizedBox(height: 4),
+            Text(subLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, color: AppColors.textGrey)),
+          ],
         ],
-      ],
+      ),
     );
   }
 
@@ -478,12 +462,249 @@ class DashboardScreen extends StatelessWidget {
         backgroundColor: AppColors.primaryPurple,
         elevation: 4,
         shape: const CircleBorder(),
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.qr_code_scanner, color: Colors.white, size: 28),
-            const Text('Scan QR', style: TextStyle(color: Colors.white, fontSize: 8)),
+            Icon(Icons.qr_code_scanner, color: Colors.white, size: 28),
+            Text('Scan QR', style: TextStyle(color: Colors.white, fontSize: 8)),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class TransactionCard extends StatelessWidget {
+  const TransactionCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final height = constraints.maxHeight;
+            final width = constraints.maxWidth;
+
+            return Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFD81B60), Color(0xFFC2185B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Stack(
+                clipBehavior: Clip.antiAlias,
+                children: [
+                  Positioned(
+                    right: -width * 0.3,
+                    top: -height * 0.1,
+                    bottom: -height * 0.1,
+                    child: Container(
+                      width: width * 0.8,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFAD1457).withOpacity(0.4),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: width * 0.05,
+                    bottom: height * 0.25,
+                    child: GestureDetector(
+                      onTap: state.isRefreshing
+                          ? null
+                          : () {
+                              context.read<DashboardBloc>().add(StartRefreshTimer());
+                            },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.refresh,
+                            color: Colors.white.withOpacity(state.isRefreshing ? 0.5 : 1.0),
+                            size: width * 0.12,
+                          ),
+                          if (state.isRefreshing)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 4.0),
+                              child: Text(
+                                '${state.refreshTimer}s',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: width * 0.08,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(width * 0.08),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'TRANSACTION ACCOUNTS (01)',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: width * 0.05,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                context.read<DashboardBloc>().add(ToggleBalanceVisibility());
+                              },
+                              child: Icon(
+                                state.isBalanceVisible ? Icons.visibility_off_outlined : Icons.visibility,
+                                color: Colors.white,
+                                size: width * 0.08,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Text(
+                          'Combined Balance',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: width * 0.055,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          state.isBalanceVisible ? '₹ 434' : '₹ XXXX.xx',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: width * 0.1,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: UnderlineText(
+                                  'View Accounts',
+                                  fontSize: width * 0.055,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: width * 0.05),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: UnderlineText(
+                                  'Transactions',
+                                  fontSize: width * 0.055,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class PersonalFinanceCard extends StatelessWidget {
+  const PersonalFinanceCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        return Container(
+          padding: EdgeInsets.all(width * 0.1),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F4F9),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'PERSONAL FINANCE',
+                style: TextStyle(
+                  color: const Color(0xFF303F9F),
+                  fontSize: width * 0.07,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Text(
+                  'One dashboard, start using Personal Manager now!',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: width * 0.075,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: UnderlineText(
+                  'Start Now',
+                  color: const Color(0xFFD81B60),
+                  fontSize: width * 0.08,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class UnderlineText extends StatelessWidget {
+  final String text;
+  final Color color;
+  final double fontSize;
+
+  const UnderlineText(this.text, {super.key, this.color = Colors.white, this.fontSize = 12});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 2),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: color, width: 1)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
