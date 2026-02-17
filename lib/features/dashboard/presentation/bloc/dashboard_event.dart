@@ -22,3 +22,15 @@ class PaymentTabChanged extends DashboardEvent {
   @override
   List<Object> get props => [index];
 }
+
+class ToggleBalanceVisibility extends DashboardEvent {}
+
+class StartRefreshTimer extends DashboardEvent {}
+
+class RefreshTimerTick extends DashboardEvent {
+  final int secondsRemaining;
+  const RefreshTimerTick(this.secondsRemaining);
+
+  @override
+  List<Object> get props => [secondsRemaining];
+}
