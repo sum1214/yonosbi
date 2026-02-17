@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/features/payments/upi/presentation/pages/scanner_screen.dart';
+import 'package:yonosbi/features/payments/bank/presentation/pages/bank_account_landing_screen.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../payments/upi/presentation/pages/contacts_screen.dart';
 import '../../../payments/upi/presentation/pages/manual_upi_pay_screen.dart';
@@ -337,7 +338,9 @@ class DashboardScreen extends StatelessWidget {
       _gridItem(Icons.qr_code, 'Pay UPI ID or\nNumber', onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const ManualUpiPayScreen()));
       }),
-      _gridItem(Icons.account_balance, 'Pay to Bank\nA/C'),
+      _gridItem(Icons.account_balance, 'Pay to Bank\nA/C', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const BankAccountLandingScreen()));
+      }),
       _gridItem(Icons.history, 'View\nTransaction'),
     ]);
   }
