@@ -13,6 +13,14 @@ class CheckBalance extends PaymentEvent {}
 
 class ResetBalanceVisibility extends PaymentEvent {}
 
+class SearchRecipient extends PaymentEvent {
+  final String query;
+  const SearchRecipient(this.query);
+
+  @override
+  List<Object> get props => [query];
+}
+
 class SelectContact extends PaymentEvent {
   final dynamic contact;
   final Function(dynamic) onComplete;

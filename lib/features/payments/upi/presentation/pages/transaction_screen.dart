@@ -3,13 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/core/widgets/loading_overlay.dart';
-import '../bloc/payment_bloc.dart';
+import 'package:yonosbi/features/payments/upi/presentation/bloc/payment_bloc.dart';
 import 'upi_pin_screen.dart';
 
 class TransactionScreen extends StatefulWidget {
-  final Contact contact;
+  final String contactName;
+  final String contactPhone;
 
-  const TransactionScreen({super.key, required this.contact});
+  const TransactionScreen({
+    super.key, 
+    required this.contactName, 
+    required this.contactPhone,
+  });
 
   @override
   State<TransactionScreen> createState() => _TransactionScreenState();
@@ -176,7 +181,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       MaterialPageRoute(
                         builder: (context) => UpiPinScreen(
                           amount: _amountController.text,
-                          contactName: widget.contact.displayName,
+                          contactName: widget.contactName,
                         ),
                       ),
                     );
@@ -221,13 +226,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String displayName = widget.contact.displayName;
+    final String displayName = widget.contactName;
     final String initials = displayName.isNotEmpty
         ? displayName.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase()
         : '?';
-    final String upiId = widget.contact.phones.isNotEmpty 
-        ? '${widget.contact.phones.first.number}@mbkns' 
-        : 'user@upi';
+    
+    // Clean phone number: remove +91 and any non-digit characters
+    String cleanedPhone = widget.contactPhone.replaceAll(RegExp(r'^(\+91|91)'), '').replaceAll(RegExp(r'[^0-9]'), '');
+    
+    final String upiId = cleanedPhone.isNotEmpty ? '$cleanedPhone@sbi' : widget.contactName.replaceAll(" ", "").toLowerCase()+"@sbi";
 
     return BlocBuilder<PaymentBloc, PaymentState>(
       builder: (context, state) {
@@ -437,7 +444,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               MaterialPageRoute(
                                 builder: (context) => UpiPinScreen(
                                   amount: _amountController.text,
-                                  contactName: widget.contact.displayName,
+                                  contactName: widget.contactName,
                                 ),
                               ),
                             );

@@ -75,7 +75,10 @@ class PaymentScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TransactionScreen(contact: contact),
+                      builder: (context) => TransactionScreen(
+                        contactName: contact.displayName,
+                        contactPhone: contact.phones.isNotEmpty ? contact.phones.first.number : '',
+                      ),
                     ),
                   );
                 },
