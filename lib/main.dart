@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yonosbi/features/auth/presentation/pages/login_screen.dart';
 import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:yonosbi/features/payments/upi/presentation/bloc/payment_bloc.dart';
 import 'core/theme/app_theme.dart';
-import 'features/dashboard/presentation/pages/dashboard_screen.dart';
 
 void main() {
   runApp(const YonoSbiApp());
@@ -23,7 +23,7 @@ class YonoSbiApp extends StatelessWidget {
         title: 'YONO SBI',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const DashboardScreen(),
+        home: const LoginScreen(),
       ),
     );
   }
