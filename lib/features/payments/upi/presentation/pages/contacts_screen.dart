@@ -4,8 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/core/widgets/loading_overlay.dart';
-import '../bloc/payment_bloc.dart';
-import 'payment_screen.dart';
+import 'package:yonosbi/features/payments/upi/presentation/bloc/payment_bloc.dart';
+import 'package:yonosbi/features/payments/upi/presentation/pages/no_upi_screen.dart';
+import 'package:yonosbi/features/payments/upi/presentation/pages/payment_screen.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
@@ -141,10 +142,15 @@ class _ContactsScreenState extends State<ContactsScreen> {
                                   onTap: () {
                                     context.read<PaymentBloc>().add(
                                       SelectContact(contact, (selectedContact) {
+                                        // Logic: If name contains "Aakash", show No UPI screen (simulating invalid UPI)
+                                        bool hasUpi = selectedContact.displayName.toString().toLowerCase().contains("ajay") || (phone.length<10)?false:true;
+                                        
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => PaymentScreen(contact: selectedContact),
+                                            builder: (context) => hasUpi 
+                                                ? PaymentScreen(contact: selectedContact)
+                                                : NoUpiScreen(contact: selectedContact),
                                           ),
                                         );
                                       }),

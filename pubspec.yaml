@@ -16,6 +16,8 @@ dependencies:
   fast_contacts: 5.0.1
   permission_handler: ^11.3.1
   shared_preferences: ^2.2.3
+  intl: ^0.19.0
+  mobile_scanner: ^5.1.1
 
 dev_dependencies:
   flutter_test:

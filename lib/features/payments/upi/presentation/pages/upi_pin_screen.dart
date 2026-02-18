@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yonosbi/core/constants/app_colors.dart';
+import 'transaction_status_screen.dart';
 
 class UpiPinScreen extends StatefulWidget {
   final String amount;
@@ -17,6 +17,7 @@ class UpiPinScreen extends StatefulWidget {
 
 class _UpiPinScreenState extends State<UpiPinScreen> {
   String _pin = '';
+  final String _correctPin = '123456'; // Set the "correct" PIN here
 
   void _onKeyTap(String key) {
     if (_pin.length < 6) {
@@ -31,6 +32,24 @@ class _UpiPinScreenState extends State<UpiPinScreen> {
       setState(() {
         _pin = _pin.substring(0, _pin.length - 1);
       });
+    }
+  }
+
+  void _handleSubmit() {
+    if (_pin.length == 6) {
+      bool isSuccess = _pin == _correctPin;
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TransactionStatusScreen(
+            isSuccess: isSuccess,
+            amount: widget.amount,
+            contactName: widget.contactName,
+            upiId: 'user@upi', // You can pass actual UPI ID if available
+          ),
+        ),
+      );
     }
   }
 
@@ -215,10 +234,7 @@ class _UpiPinScreenState extends State<UpiPinScreen> {
           child: InkWell(
             onTap: () {
               if (key == 'SUBMIT') {
-                if (_pin.length == 6) {
-                  // Handle payment success
-                  _showSuccessDialog();
-                }
+                _handleSubmit();
               } else {
                 _onKeyTap(key);
               }
@@ -238,44 +254,6 @@ class _UpiPinScreenState extends State<UpiPinScreen> {
           ),
         );
       }).toList(),
-    );
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 80),
-            const SizedBox(height: 20),
-            const Text(
-              'Payment Successful!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text('₹${widget.amount} sent to ${widget.contactName}'),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dialog
-                Navigator.of(context).pop(); // UPI Screen
-                Navigator.of(context).pop(); // Transaction Screen
-                Navigator.of(context).pop(); // Payment Detail Screen
-                Navigator.of(context).pop(); // Contacts Screen
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryPurple,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text('Go to Home', style: TextStyle(color: Colors.white)),
-            )
-          ],
-        ),
-      ),
     );
   }
 }
