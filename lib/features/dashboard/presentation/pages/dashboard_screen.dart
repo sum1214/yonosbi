@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
-import 'package:yonosbi/features/payments/upi/presentation/pages/scanner_screen.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../payments/upi/presentation/pages/contacts_screen.dart';
 import '../../../payments/upi/presentation/pages/manual_upi_pay_screen.dart';
+import '../../../payments/upi/presentation/pages/scanner_screen.dart';
+import 'transactions_screen.dart';
+import 'accounts_screen.dart';
+import 'deposits_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -29,7 +32,7 @@ class DashboardScreen extends StatelessWidget {
                   _buildUPIPaymentsGrid(context),
                 ],
                 _buildSectionHeader('Deposits'),
-                _buildDepositsGrid(),
+                _buildDepositsGrid(context),
                 _buildPromoBanner('https://via.placeholder.com/400x150?text=JanNivesh+SIP+Banner'),
                 _buildSectionHeader('Loans'),
                 _buildLoansGrid(),
@@ -320,9 +323,11 @@ class DashboardScreen extends StatelessWidget {
     ]);
   }
 
-  Widget _buildDepositsGrid() {
+  Widget _buildDepositsGrid(BuildContext context) {
     return _buildGrid([
-      _gridItem(Icons.savings_outlined, 'Fixed\nDeposit'),
+      _gridItem(Icons.savings_outlined, 'Fixed\nDeposit', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const DepositsScreen()));
+      }),
       _gridItem(Icons.update, 'Recurring\nDeposit'),
       _gridItem(Icons.calendar_today, 'Annuity\nDeposit'),
       _gridItem(Icons.sync_alt, 'Auto Sweep'),
@@ -604,9 +609,17 @@ class TransactionCard extends StatelessWidget {
                             Flexible(
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
-                                child: UnderlineText(
-                                  'View Accounts',
-                                  fontSize: width * 0.055,
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const AccountsScreen()),
+                                    );
+                                  },
+                                  child: UnderlineText(
+                                    'View Accounts',
+                                    fontSize: width * 0.055,
+                                  ),
                                 ),
                               ),
                             ),
@@ -614,9 +627,17 @@ class TransactionCard extends StatelessWidget {
                             Flexible(
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
-                                child: UnderlineText(
-                                  'Transactions',
-                                  fontSize: width * 0.055,
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const TransactionsScreen()),
+                                    );
+                                  },
+                                  child: UnderlineText(
+                                    'Transactions',
+                                    fontSize: width * 0.055,
+                                  ),
                                 ),
                               ),
                             ),
