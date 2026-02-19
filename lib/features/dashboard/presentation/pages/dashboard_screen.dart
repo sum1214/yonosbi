@@ -34,7 +34,6 @@ class DashboardScreen extends StatelessWidget {
                 _buildPaymentsAndTransfers(context, state),
                 _buildSectionHeader('Deposits'),
                 _buildDepositsGrid(context),
-                _buildPromoBanner('https://via.placeholder.com/400x150?text=JanNivesh+SIP+Banner'),
                 _buildSectionHeader('Loans'),
                 _buildLoansGrid(),
                 _buildSectionHeader('Cards'),
