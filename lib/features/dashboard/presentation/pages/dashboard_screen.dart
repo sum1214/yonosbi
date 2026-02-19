@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/features/payments/quicktrasfer/presentation/pages/quick_transfer_select_bank_screen.dart';
-import 'package:yonosbi/features/payments/upi/presentation/pages/scanner_screen.dart';
 import 'package:yonosbi/features/payments/bank/presentation/pages/bank_account_landing_screen.dart';
 import 'package:yonosbi/features/payments/fund_transfer/presentation/pages/fund_transfer_screen.dart';
 import 'package:yonosbi/features/payments/scheduled_payments/presentation/pages/scheduled_payments_screen.dart';
+import 'package:yonosbi/features/payments/upi/presentation/pages/contacts_screen.dart';
+import 'package:yonosbi/features/payments/upi/presentation/pages/manual_upi_pay_screen.dart';
+import 'package:yonosbi/features/payments/upi/presentation/pages/scanner_screen.dart';
 import '../bloc/dashboard_bloc.dart';
-import '../../../payments/upi/presentation/pages/contacts_screen.dart';
-import '../../../payments/upi/presentation/pages/manual_upi_pay_screen.dart';
-import '../../../payments/upi/presentation/pages/scanner_screen.dart';
 import 'transactions_screen.dart';
 import 'accounts_screen.dart';
 import 'deposits_screen.dart';
@@ -23,7 +22,7 @@ class DashboardScreen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.backgroundLight,
-          appBar: _buildAppBar(),
+          appBar: _buildAppBar(context),
           body: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +55,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
