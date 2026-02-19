@@ -30,7 +30,7 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 _buildTopTabs(),
                 _buildQuickActions(),
-                _buildBankingContent(),
+                _buildBankingContent(state),
                 _buildPaymentsAndTransfers(context, state),
                 _buildSectionHeader('Deposits'),
                 _buildDepositsGrid(context),
@@ -154,9 +154,9 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBankingContent() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+  Widget _buildBankingContent(DashboardState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: SizedBox(
         height: 175,
         child: Row(
@@ -165,8 +165,8 @@ class DashboardScreen extends StatelessWidget {
               flex: 60,
               child: TransactionCard(),
             ),
-            SizedBox(width: 10),
-            Expanded(
+            const SizedBox(width: 10),
+            const Expanded(
               flex: 40,
               child: PersonalFinanceCard(),
             ),
@@ -489,7 +489,7 @@ class TransactionCard extends StatelessWidget {
                     child: Container(
                       width: width * 0.8,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFAD1457).withOpacity(0.4),
+                        color: const Color(0xFFAD1457).withValues(alpha: 0.4),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -508,7 +508,7 @@ class TransactionCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.refresh,
-                            color: Colors.white.withOpacity(state.isRefreshing ? 0.5 : 1.0),
+                            color: Colors.white.withValues(alpha: state.isRefreshing ? 0.5 : 1.0),
                             size: width * 0.12,
                           ),
                           if (state.isRefreshing)
@@ -563,13 +563,13 @@ class TransactionCard extends StatelessWidget {
                         Text(
                           'Combined Balance',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: width * 0.055,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          state.isBalanceVisible ? '₹ 434' : '₹ XXXX.xx',
+                          state.isBalanceVisible ? '₹ ${state.balance.toStringAsFixed(2)}' : '₹ XXXX.xx',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: width * 0.1,

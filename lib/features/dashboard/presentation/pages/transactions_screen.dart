@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import '../bloc/dashboard_bloc.dart';
 import 'transaction_data.dart';
 import 'transaction_details_screen.dart';
 import 'request_statement_screen.dart';
@@ -117,123 +119,127 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setSheetState) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Select Account',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Icon(Icons.keyboard_arrow_up, color: Colors.grey.shade400, size: 28),
-                        ),
-                      ],
+        return BlocBuilder<DashboardBloc, DashboardState>(
+          builder: (context, state) {
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setSheetState) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF0066B3),
-                              shape: BoxShape.circle,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Select Account',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
                             ),
-                            child: const Icon(Icons.account_balance, color: Colors.white, size: 20),
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Icon(Icons.keyboard_arrow_up, color: Colors.grey.shade400, size: 28),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF0066B3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.account_balance, color: Colors.white, size: 20),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      localIsVisible ? '36991604135' : 'XXXXXXXX4135',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          localIsVisible ? '36991604135' : 'XXXXXXXX4135',
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setSheetState(() {
+                                              localIsVisible = !localIsVisible;
+                                            });
+                                          },
+                                          child: Icon(
+                                            localIsVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                            size: 20,
+                                            color: AppColors.primaryPurple,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 8),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setSheetState(() {
-                                          localIsVisible = !localIsVisible;
-                                        });
-                                      },
-                                      child: Icon(
-                                        localIsVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                        size: 20,
-                                        color: AppColors.primaryPurple,
-                                      ),
-                                    ),
+                                    const Text('Savings Account', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                                    Text('Available Balance: ₹ ${state.balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.black54, fontSize: 12)),
                                   ],
                                 ),
-                                const Text('Savings Account', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                const Text('Available Balance: ₹434.44', style: TextStyle(color: Colors.black54, fontSize: 12)),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: AppColors.primaryPurple,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.check, color: Colors.white, size: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _isAccountVisible = localIsVisible;
-                          });
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryPurple,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primaryPurple,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.check, color: Colors.white, size: 16),
+                              ),
+                            ],
                           ),
                         ),
-                        child: const Text('Select', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _isAccountVisible = localIsVisible;
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryPurple,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                            child: const Text('Select', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                ],
-              ),
+                );
+              }
             );
-          }
+          },
         );
       },
     );

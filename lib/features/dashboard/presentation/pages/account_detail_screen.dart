@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import '../bloc/dashboard_bloc.dart';
 import 'transaction_data.dart';
 import 'nominee_screen.dart';
 
@@ -16,42 +18,46 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      body: Column(
-        children: [
-          _buildStaticHeader(),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF5F7FA),
+          body: Column(
+            children: [
+              _buildStaticHeader(state),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: _buildTabs(),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: _activeTabIndex == 0 
+                            ? SliverToBoxAdapter(child: _buildSummaryContent(state))
+                            : _buildTransactionsContent(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: _buildTabs(),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.all(16),
-                    sliver: _activeTabIndex == 0 
-                        ? SliverToBoxAdapter(child: _buildSummaryContent())
-                        : _buildTransactionsContent(),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildStaticHeader() {
+  Widget _buildStaticHeader(DashboardState state) {
     return Container(
       color: AppColors.primaryPurple,
       padding: const EdgeInsets.only(top: 40, bottom: 20),
@@ -121,9 +127,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                   style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  '₹ 684.80',
-                  style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                Text(
+                  '₹ ${state.balance.toStringAsFixed(2)}',
+                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -201,11 +207,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     );
   }
 
-  Widget _buildSummaryContent() {
+  Widget _buildSummaryContent(DashboardState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSummaryRow('Available Balance', '₹ 684.80'),
+        _buildSummaryRow('Available Balance', '₹ ${state.balance.toStringAsFixed(2)}'),
         _buildSummaryRow('Hold/Lien Amount', '₹ 0.00'),
         _buildSummaryRow('Uncleared Balance', '₹ 0.00'),
         _buildSummaryRow('MOD Balance', '₹ 0.00'),

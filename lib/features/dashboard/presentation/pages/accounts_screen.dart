@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import '../bloc/dashboard_bloc.dart';
 import 'account_detail_screen.dart';
 
 class AccountsScreen extends StatefulWidget {
@@ -14,58 +16,62 @@ class _AccountsScreenState extends State<AccountsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryPurple,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Accounts',
-          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Savings Account',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildAccountRow(),
-                  const SizedBox(height: 40),
-                  _buildUnderlinedLink('Apply for a New Savings Account'),
-                  const SizedBox(height: 20),
-                  _buildUnderlinedLink('Apply for a New Current Account'),
-                ],
-              ),
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF5F7FA),
+          appBar: AppBar(
+            backgroundColor: AppColors.primaryPurple,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text(
+              'Accounts',
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-        ],
-      ),
+          body: Column(
+            children: [
+              _buildHeader(state),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Savings Account',
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildAccountRow(state),
+                      const SizedBox(height: 40),
+                      _buildUnderlinedLink('Apply for a New Savings Account'),
+                      const SizedBox(height: 20),
+                      _buildUnderlinedLink('Apply for a New Current Account'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(DashboardState state) {
     return Container(
       width: double.infinity,
       color: AppColors.primaryPurple,
@@ -104,16 +110,16 @@ class _AccountsScreenState extends State<AccountsScreen> {
             style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 4),
-          const Text(
-            '₹ 684.80',
-            style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+          Text(
+            '₹ ${state.balance.toStringAsFixed(2)}',
+            style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAccountRow() {
+  Widget _buildAccountRow(DashboardState state) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -147,9 +153,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
           ),
           Row(
             children: [
-              const Text(
-                '₹ 684.80',
-                style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.w500),
+              Text(
+                '₹ ${state.balance.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.w500),
               ),
               const SizedBox(width: 8),
               const Icon(Icons.chevron_right, color: Colors.grey),

@@ -6,6 +6,7 @@ class DashboardState extends Equatable {
   final bool isBalanceVisible;
   final bool isRefreshing;
   final int refreshTimer;
+  final double balance;
 
   const DashboardState({
     this.selectedIndex = 0,
@@ -13,6 +14,7 @@ class DashboardState extends Equatable {
     this.isBalanceVisible = false,
     this.isRefreshing = false,
     this.refreshTimer = 0,
+    this.balance = 684.80,
   });
 
   DashboardState copyWith({
@@ -21,6 +23,7 @@ class DashboardState extends Equatable {
     bool? isBalanceVisible,
     bool? isRefreshing,
     int? refreshTimer,
+    double? balance,
   }) {
     return DashboardState(
       selectedIndex: selectedIndex ?? this.selectedIndex,
@@ -28,15 +31,17 @@ class DashboardState extends Equatable {
       isBalanceVisible: isBalanceVisible ?? this.isBalanceVisible,
       isRefreshing: isRefreshing ?? this.isRefreshing,
       refreshTimer: refreshTimer ?? this.refreshTimer,
+      balance: balance ?? this.balance,
     );
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         selectedIndex,
         paymentTabIndex,
         isBalanceVisible,
         isRefreshing,
         refreshTimer,
+        balance,
       ];
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import '../bloc/dashboard_bloc.dart';
 import 'interest_rates_screen.dart';
 
 class FixedDepositDetailsScreen extends StatefulWidget {
@@ -115,127 +117,131 @@ class _FixedDepositDetailsScreenState extends State<FixedDepositDetailsScreen> {
     bool isFormFilled = _amountController.text.isNotEmpty && 
         (_yearsController.text.isNotEmpty || _monthsController.text.isNotEmpty || _daysController.text.isNotEmpty);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black54, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Open Fixed Deposit',
-          style: TextStyle(color: AppColors.textDark, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.headset_mic_outlined, color: Colors.black54),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Fixed Deposit Details',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primaryPurple,
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.black54, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text(
+              'Open Fixed Deposit',
+              style: TextStyle(color: AppColors.textDark, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.headset_mic_outlined, color: Colors.black54),
               ),
-            ),
-            const SizedBox(height: 32),
-            _buildVariantSelector(),
-            const SizedBox(height: 32),
-            const Text(
-              'Debit Account',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-            ),
-            const SizedBox(height: 12),
-            _buildAccountCard(),
-            const SizedBox(height: 32),
-            _buildTextField(_amountController, 'Enter Amount'),
-            const SizedBox(height: 32),
-            const Divider(color: Colors.grey, thickness: 0.5, height: 1),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Duration',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                  'Fixed Deposit Details',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryPurple,
+                  ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const InterestRatesScreen()),
-                    );
-                  },
-                  child: const Text(
-                    'Interest Rates',
-                    style: TextStyle(
-                      color: AppColors.primaryPurple,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
+                const SizedBox(height: 32),
+                _buildVariantSelector(),
+                const SizedBox(height: 32),
+                const Text(
+                  'Debit Account',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                const SizedBox(height: 12),
+                _buildAccountCard(state),
+                const SizedBox(height: 32),
+                _buildTextField(_amountController, 'Enter Amount'),
+                const SizedBox(height: 32),
+                const Divider(color: Colors.grey, thickness: 0.5, height: 1),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Duration',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
                     ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const InterestRatesScreen()),
+                        );
+                      },
+                      child: const Text(
+                        'Interest Rates',
+                        style: TextStyle(
+                          color: AppColors.primaryPurple,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Text(
+                  'Deposit Duration',
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'The interest rates differ based on duration of the deposit. Select your preferred duration.',
+                  style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.4),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(child: _buildDurationInput(_yearsController, 'Years')),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildDurationInput(_monthsController, 'Months')),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildDurationInput(_daysController, 'days')),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const Divider(color: Colors.grey, thickness: 0.5, height: 1),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(child: _buildInfoDisplayBox('Rate of Interest')),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildInfoDisplayBox('Maturity Date')),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: isFormFilled ? () {} : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isFormFilled ? AppColors.primaryPurple : Colors.grey.shade200,
+                      foregroundColor: isFormFilled ? Colors.white : Colors.grey.shade500,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: const Text('Proceed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
                 ),
               ],
             ),
-            const Text(
-              'Deposit Duration',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'The interest rates differ based on duration of the deposit. Select your preferred duration.',
-              style: TextStyle(color: Colors.grey, fontSize: 12, height: 1.4),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(child: _buildDurationInput(_yearsController, 'Years')),
-                const SizedBox(width: 16),
-                Expanded(child: _buildDurationInput(_monthsController, 'Months')),
-                const SizedBox(width: 16),
-                Expanded(child: _buildDurationInput(_daysController, 'days')),
-              ],
-            ),
-            const SizedBox(height: 24),
-            const Divider(color: Colors.grey, thickness: 0.5, height: 1),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(child: _buildInfoDisplayBox('Rate of Interest')),
-                const SizedBox(width: 16),
-                Expanded(child: _buildInfoDisplayBox('Maturity Date')),
-              ],
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: isFormFilled ? () {} : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isFormFilled ? AppColors.primaryPurple : Colors.grey.shade200,
-                  foregroundColor: isFormFilled ? Colors.white : Colors.grey.shade500,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: const Text('Proceed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -264,7 +270,7 @@ class _FixedDepositDetailsScreenState extends State<FixedDepositDetailsScreen> {
     );
   }
 
-  Widget _buildAccountCard() {
+  Widget _buildAccountCard(DashboardState state) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -305,7 +311,7 @@ class _FixedDepositDetailsScreenState extends State<FixedDepositDetailsScreen> {
                   ],
                 ),
                 const Text('Savings Account', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                const Text('Available Balance: ₹ 684.80', style: TextStyle(color: Colors.black54, fontSize: 12)),
+                Text('Available Balance: ₹ ${state.balance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.black54, fontSize: 12)),
               ],
             ),
           ),
