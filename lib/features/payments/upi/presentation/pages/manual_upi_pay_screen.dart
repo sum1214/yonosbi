@@ -14,6 +14,7 @@ class ManualUpiPayScreen extends StatefulWidget {
 
 class _ManualUpiPayScreenState extends State<ManualUpiPayScreen> {
   final TextEditingController _controller = TextEditingController();
+  bool _showVerifyButton = false;
 
   @override
   void initState() {
@@ -29,8 +30,25 @@ class _ManualUpiPayScreenState extends State<ManualUpiPayScreen> {
 
   void _handleInputChange() {
     final text = _controller.text.trim();
-    // Always add the event so the BLoC can handle showing or hiding the recipient based on input length
+    
+    setState(() {
+      // Show verify button if it's a potential UPI ID (contains @ with chars on both sides) 
+      // or a 10-digit number
+      final isUpi = text.contains('@') && text.indexOf('@') > 0 && text.indexOf('@') < text.length - 1;
+      final isPhone = RegExp(r'^[0-9]{10}$').hasMatch(text);
+      _showVerifyButton = isUpi || isPhone;
+    });
+
+    // Reset recipient if input is empty or invalid format to avoid showing old results
+    if (text.isEmpty || (!text.contains('@') && !RegExp(r'^[0-9]+$').hasMatch(text))) {
+       context.read<PaymentBloc>().add(const SearchRecipient(""));
+    }
+  }
+
+  void _onVerify() {
+    final text = _controller.text.trim();
     context.read<PaymentBloc>().add(SearchRecipient(text));
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -63,7 +81,12 @@ class _ManualUpiPayScreenState extends State<ManualUpiPayScreen> {
                     decoration: InputDecoration(
                       hintText: 'Enter UPI ID or Number',
                       prefixIcon: const Icon(Icons.search),
-                      suffixIcon: state.showRecipient && !state.isLoading ? const Icon(Icons.check_circle, color: Colors.green) : null,
+                      suffixIcon: _showVerifyButton 
+                        ? TextButton(
+                            onPressed: _onVerify,
+                            child: const Text('Verify', style: TextStyle(color: AppColors.primaryPurple, fontWeight: FontWeight.bold)),
+                          )
+                        : (state.showRecipient && !state.isLoading ? const Icon(Icons.check_circle, color: Colors.green) : null),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(color: AppColors.primaryPurple),
@@ -79,14 +102,15 @@ class _ManualUpiPayScreenState extends State<ManualUpiPayScreen> {
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
+                    onSubmitted: (_) => _showVerifyButton ? _onVerify() : null,
                   ),
                 ),
-                if (state.showRecipient && !state.isLoading)
+                if (state.showRecipient && !state.isLoading && _controller.text.isNotEmpty)
                   ListTile(
                     leading: CircleAvatar(
                       backgroundColor: Colors.purple.shade50,
                       child: Text(
-                        state.searchResultName.isNotEmpty ? state.searchResultName[0] : '?',
+                        state.searchResultName.isNotEmpty ? state.searchResultName[0].toUpperCase() : '?',
                         style: const TextStyle(color: AppColors.primaryPurple, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -105,6 +129,7 @@ class _ManualUpiPayScreenState extends State<ManualUpiPayScreen> {
                           builder: (context) => TransactionScreen(
                             contactName: state.searchResultName,
                             contactPhone: state.searchResultUpi,
+                            shouldShowLoader: true,
                           ),
                         ),
                       );

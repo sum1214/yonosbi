@@ -3,15 +3,25 @@ import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/features/payments/quicktrasfer/presentation/pages/otp_confirmation_screen.dart';
 
 class ReviewTransactionScreen extends StatefulWidget {
+  final String payeeName;
   final String bankName;
   final String accountNumber;
   final String amount;
+  final bool isScheduled;
+  final String? date;
+  final String? frequency;
+  final String? remark;
 
   const ReviewTransactionScreen({
     super.key,
+    required this.payeeName,
     required this.bankName,
     required this.accountNumber,
     required this.amount,
+    this.isScheduled = false,
+    this.date,
+    this.frequency,
+    this.remark,
   });
 
   @override
@@ -45,9 +55,9 @@ class _ReviewTransactionScreenState extends State<ReviewTransactionScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Review Transaction Details',
-              style: TextStyle(
+            Text(
+              widget.isScheduled ? 'Review Scheduled Details' : 'Review Transaction Details',
+              style: const TextStyle(
                 color: AppColors.primaryPurple,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -69,15 +79,26 @@ class _ReviewTransactionScreenState extends State<ReviewTransactionScreen> {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                'Transfer to Family or friends',
-                style: TextStyle(
+              child: Text(
+                widget.remark ?? 'Transfer to Family or friends',
+                style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textGrey,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
+            if (widget.isScheduled) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Scheduled for: ${widget.date} (${widget.frequency})',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.primaryPurple,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             Text(
               'Mode of Transfer: IMPS',
@@ -97,9 +118,9 @@ class _ReviewTransactionScreenState extends State<ReviewTransactionScreen> {
                   CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.purple.shade50,
-                    child: const Text(
-                      'SK',
-                      style: TextStyle(
+                    child: Text(
+                      widget.payeeName.isNotEmpty ? widget.payeeName.substring(0, 1).toUpperCase() : 'P',
+                      style: const TextStyle(
                         color: AppColors.primaryPurple,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -111,9 +132,9 @@ class _ReviewTransactionScreenState extends State<ReviewTransactionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Shubham Kumar',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        Text(
+                          widget.payeeName,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -170,12 +191,12 @@ class _ReviewTransactionScreenState extends State<ReviewTransactionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Savings Account',
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                         ),
-                        const SizedBox(height: 2),
-                        const Text(
+                        SizedBox(height: 2),
+                        Text(
                           'Account Number: XXXXXXXX8881',
                           style: TextStyle(fontSize: 12, color: AppColors.textGrey),
                         ),
@@ -252,7 +273,18 @@ class _ReviewTransactionScreenState extends State<ReviewTransactionScreen> {
                             Navigator.pop(context);
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const OtpConfirmationScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => OtpConfirmationScreen(
+                                  isScheduled: widget.isScheduled,
+                                  date: widget.date,
+                                  frequency: widget.frequency,
+                                  remark: widget.remark,
+                                  payeeName: widget.payeeName,
+                                  bankName: widget.bankName,
+                                  accountNumber: widget.accountNumber,
+                                  amount: widget.amount,
+                                ),
+                              ),
                             );
                           }
                         : null,

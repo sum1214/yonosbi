@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/core/widgets/loading_overlay.dart';
 import 'package:yonosbi/features/dashboard/presentation/pages/dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final List<TextEditingController> _pinControllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -33,11 +35,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Check if all filled
     if (_pinControllers.every((c) => c.text.isNotEmpty)) {
-      _login();
+      final pin = _pinControllers.map((c) => c.text).join();
+      if (pin == '123456') {
+        _login();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid PIN. Please enter 123456.')),
+        );
+        for (var controller in _pinControllers) {
+          controller.clear();
+        }
+        _focusNodes[0].requestFocus();
+      }
     }
   }
 
-  void _login() {
+  Future<void> _login() async {
+    setState(() => _isLoading = true);
+    // Simulate API call
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const DashboardScreen()),
@@ -46,33 +65,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Transform.translate(
-              offset: const Offset(0, -40),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    _buildLoginCard(),
-                    const SizedBox(height: 15),
-                    _buildViewBalanceButton(),
-                    const SizedBox(height: 20),
-                    _buildTransactSection(),
-                    const SizedBox(height: 20),
-                    _buildWhatsAppBanner(),
-                  ],
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Transform.translate(
+                offset: const Offset(0, -40),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      _buildLoginCard(),
+                      const SizedBox(height: 15),
+                      _buildViewBalanceButton(),
+                      const SizedBox(height: 20),
+                      _buildTransactSection(),
+                      const SizedBox(height: 20),
+                      _buildWhatsAppBanner(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: _buildBottomNav(),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
@@ -226,7 +248,11 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () async {
+          setState(() => _isLoading = true);
+          await Future.delayed(const Duration(seconds: 2));
+          if (mounted) setState(() => _isLoading = false);
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryPurple,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
@@ -248,12 +274,12 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: Column(
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text('Transact', style: TextStyle(color: AppColors.primaryPurple, fontWeight: FontWeight.bold)),
-              Text('Calculators', style: TextStyle(color: Colors.grey)),
-              Text('Offers', style: TextStyle(color: Colors.grey)),
+              _buildTabIndicator('Transact', true),
+              _buildTabIndicator('Calculators', false),
+              _buildTabIndicator('Offers', false),
             ],
           ),
           const SizedBox(height: 20),
@@ -268,6 +294,27 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTabIndicator(String text, bool isSelected) {
+    return Column(
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? AppColors.primaryPurple : Colors.grey,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        if (isSelected)
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            height: 2,
+            width: 40,
+            color: AppColors.primaryPurple,
+          ),
+      ],
     );
   }
 

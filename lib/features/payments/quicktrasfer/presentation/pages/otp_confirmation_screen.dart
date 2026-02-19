@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'transaction_success_screen.dart';
+import '../../../scheduled_payments/data/repositories/scheduled_payment_repository.dart';
+import '../../../scheduled_payments/domain/models/scheduled_payment_model.dart';
+import 'package:intl/intl.dart';
 
 class OtpConfirmationScreen extends StatefulWidget {
-  const OtpConfirmationScreen({super.key});
+  final bool isScheduled;
+  final String? date;
+  final String? frequency;
+  final String? remark;
+  final String? payeeName;
+  final String? bankName;
+  final String? accountNumber;
+  final String? amount;
+
+  const OtpConfirmationScreen({
+    super.key,
+    this.isScheduled = false,
+    this.date,
+    this.frequency,
+    this.remark,
+    this.payeeName,
+    this.bankName,
+    this.accountNumber,
+    this.amount,
+  });
 
   @override
   State<OtpConfirmationScreen> createState() => _OtpConfirmationScreenState();
@@ -13,6 +35,7 @@ class _OtpConfirmationScreenState extends State<OtpConfirmationScreen> {
   final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   bool _isSubmitEnabled = false;
+  final ScheduledPaymentRepository _repository = ScheduledPaymentRepository();
 
   @override
   void initState() {
@@ -39,6 +62,28 @@ class _OtpConfirmationScreenState extends State<OtpConfirmationScreen> {
     });
   }
 
+  Future<void> _handleSuccess() async {
+    if (widget.isScheduled) {
+      final payment = ScheduledPayment(
+        payeeName: widget.payeeName ?? 'Unknown',
+        bankName: widget.bankName ?? 'Unknown',
+        accountNumber: widget.accountNumber ?? '',
+        amount: widget.amount ?? '0',
+        date: widget.date ?? '',
+        frequency: widget.frequency ?? 'One Time',
+        remark: widget.remark ?? 'Transfer to Family or friends',
+        scheduledTime: DateFormat('dd/MM/yyyy at hh:mm a').format(DateTime.now()),
+      );
+      await _repository.saveScheduledPayment(payment);
+    }
+
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TransactionSuccessScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +106,6 @@ class _OtpConfirmationScreenState extends State<OtpConfirmationScreen> {
             Container(
               height: MediaQuery.of(context).size.height * 0.4,
               color: Colors.black.withOpacity(0.05),
-              // Placeholder for background content
             ),
             Container(
               width: double.infinity,
@@ -140,14 +184,7 @@ class _OtpConfirmationScreenState extends State<OtpConfirmationScreen> {
                       width: double.infinity,
                       height: 45,
                       child: ElevatedButton(
-                        onPressed: _isSubmitEnabled
-                            ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const TransactionSuccessScreen()),
-                                );
-                              }
-                            : null,
+                        onPressed: _isSubmitEnabled ? _handleSuccess : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isSubmitEnabled ? Colors.white : Colors.white.withOpacity(0.3),
                           elevation: 0,

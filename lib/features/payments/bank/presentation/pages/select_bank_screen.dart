@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yonosbi/core/widgets/loading_overlay.dart';
 import 'enter_account_number_screen.dart';
 
 class SelectBankScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class _SelectBankScreenState extends State<SelectBankScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   List<Map<String, String>> _filteredBanks = [];
+  bool _isLoading = true;
 
   final List<Map<String, String>> popularBanks = [
     {'name': 'SBI', 'logo': 'assets/images/sbi_logo.png'},
@@ -53,6 +55,16 @@ class _SelectBankScreenState extends State<SelectBankScreen> {
     super.initState();
     _filteredBanks = allBanksList;
     _searchController.addListener(_onSearchChanged);
+    _loadBanks();
+  }
+
+  Future<void> _loadBanks() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _onSearchChanged() {
@@ -78,85 +90,88 @@ class _SelectBankScreenState extends State<SelectBankScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            'Select Bank',
+            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ),
-        title: const Text(
-          'Select Bank',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search Bank Name',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search Bank Name',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                if (_searchQuery.isEmpty) ...[
-                  const Text(
-                    'Popular Banks',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 1.2,
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  if (_searchQuery.isEmpty) ...[
+                    const Text(
+                      'Popular Banks',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
                     ),
-                    itemCount: popularBanks.length,
-                    itemBuilder: (context, index) {
-                      return _buildBankGridItem(popularBanks[index]);
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'All Banks',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 16),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 1.2,
+                      ),
+                      itemCount: popularBanks.length,
+                      itemBuilder: (context, index) {
+                        return _buildBankGridItem(popularBanks[index]);
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'All Banks',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  // Combined list items (results or all banks)
+                  ..._filteredBanks.map((bank) => _buildBankListItem(bank)).toList(),
+                  const SizedBox(height: 20),
                 ],
-                // Combined list items (results or all banks)
-                ..._filteredBanks.map((bank) => _buildBankListItem(bank)).toList(),
-                const SizedBox(height: 20),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

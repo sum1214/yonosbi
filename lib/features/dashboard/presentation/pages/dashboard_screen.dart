@@ -5,6 +5,7 @@ import 'package:yonosbi/features/payments/quicktrasfer/presentation/pages/quick_
 import 'package:yonosbi/features/payments/upi/presentation/pages/scanner_screen.dart';
 import 'package:yonosbi/features/payments/bank/presentation/pages/bank_account_landing_screen.dart';
 import 'package:yonosbi/features/payments/fund_transfer/presentation/pages/fund_transfer_screen.dart';
+import 'package:yonosbi/features/payments/scheduled_payments/presentation/pages/scheduled_payments_screen.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../payments/upi/presentation/pages/contacts_screen.dart';
 import '../../../payments/upi/presentation/pages/manual_upi_pay_screen.dart';
@@ -27,21 +28,14 @@ class DashboardScreen extends StatelessWidget {
                 _buildQuickActions(),
                 _buildBankingContent(),
                 _buildPaymentsAndTransfers(context, state),
-                if (state.paymentTabIndex == 0) ...[
-                  _buildSectionHeader('UPI Payments'),
-                  _buildUPIPaymentsGrid(context),
-                ],
                 _buildSectionHeader('Deposits'),
                 _buildDepositsGrid(),
-                _buildPromoBanner('https://via.placeholder.com/400x150?text=JanNivesh+SIP+Banner'),
                 _buildSectionHeader('Loans'),
                 _buildLoansGrid(),
-                _buildPromoBanner('https://via.placeholder.com/400x100?text=Credit+Score+Banner', height: 80, gradient: true),
                 _buildSectionHeader('Cards'),
                 _buildCardsGrid(),
                 _buildSectionHeader('Investments'),
                 _buildInvestmentsGrid(),
-                _buildPromoBanner('https://via.placeholder.com/400x100?text=Personal+Finance+Manager', height: 80, gradient: true),
                 _buildSectionHeader('Insurance'),
                 _buildInsuranceGrid(),
                 _buildSectionHeader('Services'),
@@ -217,20 +211,8 @@ class DashboardScreen extends StatelessWidget {
     switch (paymentTabIndex) {
       case 0:
         return Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 20),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text("You haven't created a UPI...", style: TextStyle(fontSize: 12)),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Activate UPI ID', style: TextStyle(color: AppColors.primaryPurple, fontWeight: FontWeight.bold)),
-              )
-            ],
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          child: _buildUPIPaymentsGrid(context),
         );
       case 1:
         return Padding(
@@ -243,7 +225,9 @@ class DashboardScreen extends StatelessWidget {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const FundTransferScreen()));
             }),
             _gridItem(Icons.language, 'Send\nMoney\nAbroad'),
-            _gridItem(Icons.calendar_month_outlined, 'Schedule\nPayments'),
+            _gridItem(Icons.calendar_month_outlined, 'Schedule\nPayments', onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ScheduledPaymentsScreen()));
+            }),
           ], childAspectRatio: 0.75),
         );
       case 2:
@@ -408,27 +392,6 @@ class DashboardScreen extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-
-  Widget _buildPromoBanner(String url, {double height = 150, bool gradient = false}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      height: height,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: gradient ? null : Colors.blue.shade50,
-        gradient: gradient ? const LinearGradient(colors: [AppColors.primaryPurple, AppColors.secondaryPink]) : null,
-        borderRadius: BorderRadius.circular(15),
-        image: DecorationImage(
-          image: NetworkImage(url),
-          fit: BoxFit.cover,
-          opacity: gradient ? 0.3 : 1.0,
-        ),
-      ),
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.all(15),
-      child: gradient ? Text(url.contains('Credit') ? 'What is your\nCredit Score >' : 'Personal Finance\nManager >', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)) : null,
     );
   }
 
