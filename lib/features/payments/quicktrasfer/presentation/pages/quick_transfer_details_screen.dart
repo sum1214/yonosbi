@@ -224,7 +224,7 @@ class _QuickTransferDetailsScreenState extends State<QuickTransferDetailsScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('XXXXXXXX8881', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('XXXXXXXX1234', style: TextStyle(fontWeight: FontWeight.bold)),
                     const Text('Savings Account', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
                     Text('Current Balance: $formattedBalance/-', style: const TextStyle(fontSize: 11, color: AppColors.textGrey)),
                   ],

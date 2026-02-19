@@ -133,7 +133,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
           Row(
             children: [
               Text(
-                _isAccountVisible ? '36991604135' : 'XXXXXXXX4135',
+                _isAccountVisible ? 'XXXXXXXX1234' : 'XXXXXXXX1234',
                 style: const TextStyle(fontSize: 18, color: Colors.black87),
               ),
               const SizedBox(width: 12),

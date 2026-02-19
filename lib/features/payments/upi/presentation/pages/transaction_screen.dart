@@ -152,7 +152,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'STATE BANK OF INDIA 8881',
+                            'STATE BANK OF INDIA 1234',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                           Row(
@@ -436,7 +436,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'STATE BANK OF INDIA 8881',
+                                      'STATE BANK OF INDIA 1234',
                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                     ),
                                     Text(

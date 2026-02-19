@@ -325,7 +325,7 @@ class _RequestStatementScreenState extends State<RequestStatementScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Divider(color: Colors.white.withValues(alpha: 0.2), height: 1),
+                    child: Divider(color: Colors.white.withOpacity(0.2), height: 1),
                   ),
                 ],
               )),
@@ -531,7 +531,7 @@ class _RequestStatementScreenState extends State<RequestStatementScreen> {
       backgroundColor: Colors.white,
       builder: (context) {
         return StatefulBuilder(
-          builder: (context, setSheetState) {
+          builder: (context, setModalState) {
             return FutureBuilder(
               future: Future.delayed(const Duration(seconds: 2)),
               builder: (context, snapshot) {
