@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/core/widgets/loading_overlay.dart';
 import 'quick_transfer_details_screen.dart';
 
 class QuickTransferSelectBankScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class _QuickTransferSelectBankScreenState extends State<QuickTransferSelectBankS
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   List<Map<String, String>> _filteredBanks = [];
+  bool _isLoading = true;
 
   final List<Map<String, String>> popularBanks = [
     {'name': 'SBI Bank', 'logo': 'assets/images/sbi_logo.png'},
@@ -44,6 +46,16 @@ class _QuickTransferSelectBankScreenState extends State<QuickTransferSelectBankS
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _loadBanks();
+  }
+
+  Future<void> _loadBanks() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _onSearchChanged() {
@@ -69,152 +81,155 @@ class _QuickTransferSelectBankScreenState extends State<QuickTransferSelectBankS
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            'Quick Transfer',
+            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ),
-        title: const Text(
-          'Quick Transfer',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Select Bank',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    TextButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.qr_code_scanner, size: 18, color: AppColors.primaryPurple),
-                      label: const Text('Scan Cheque', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
-                    ),
-                  ],
+        body: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Select Bank',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.qr_code_scanner, size: 18, color: AppColors.primaryPurple),
+                        label: const Text('Scan Cheque', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search Bank Name',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                            },
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search Bank Name',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Popular Banks',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-                        ),
-                        TextButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.account_balance, size: 16, color: AppColors.primaryPurple),
-                          label: const Text('Use MMID', style: TextStyle(color: AppColors.primaryPurple, fontSize: 12)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                        childAspectRatio: 1.0,
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Popular Banks',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+                          ),
+                          TextButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.account_balance, size: 16, color: AppColors.primaryPurple),
+                            label: const Text('Use MMID', style: TextStyle(color: AppColors.primaryPurple, fontSize: 12)),
+                          ),
+                        ],
                       ),
-                      itemCount: popularBanks.length,
-                      itemBuilder: (context, index) {
-                        return _buildBankGridItem(popularBanks[index]);
-                      },
-                    ),
-                    const SizedBox(height: 32),
-                    const Text(
-                      'All Banks',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    ...allBanksList.map((bank) => _buildBankListItem(bank)).toList(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (_searchQuery.isNotEmpty)
-            Positioned(
-              top: 105, // Positioned exactly below the search bar
-              left: 16,
-              right: 16,
-              child: Container(
-                constraints: const BoxConstraints(maxHeight: 400),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  itemCount: _filteredBanks.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      title: Text(
-                        _filteredBanks[index]['name']!,
-                        style: const TextStyle(fontSize: 14, color: AppColors.textGrey),
+                      const SizedBox(height: 16),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 1.0,
+                        ),
+                        itemCount: popularBanks.length,
+                        itemBuilder: (context, index) {
+                          return _buildBankGridItem(popularBanks[index]);
+                        },
                       ),
-                      onTap: () {
-                        _searchController.text = _filteredBanks[index]['name']!;
-                        _navigateToDetails(_filteredBanks[index]);
-                      },
-                    );
-                  },
+                      const SizedBox(height: 32),
+                      const Text(
+                        'All Banks',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      ...allBanksList.map((bank) => _buildBankListItem(bank)).toList(),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
-        ],
+            if (_searchQuery.isNotEmpty)
+              Positioned(
+                top: 105, // Positioned exactly below the search bar
+                left: 16,
+                right: 16,
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 400),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    itemCount: _filteredBanks.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        title: Text(
+                          _filteredBanks[index]['name']!,
+                          style: const TextStyle(fontSize: 14, color: AppColors.textGrey),
+                        ),
+                        onTap: () {
+                          _searchController.text = _filteredBanks[index]['name']!;
+                          _navigateToDetails(_filteredBanks[index]);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

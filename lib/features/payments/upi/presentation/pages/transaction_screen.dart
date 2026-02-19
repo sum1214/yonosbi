@@ -1,4 +1,3 @@
-import 'package:fast_contacts/fast_contacts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
@@ -9,11 +8,13 @@ import 'upi_pin_screen.dart';
 class TransactionScreen extends StatefulWidget {
   final String contactName;
   final String contactPhone;
+  final bool shouldShowLoader;
 
   const TransactionScreen({
     super.key, 
     required this.contactName, 
     required this.contactPhone,
+    this.shouldShowLoader = false,
   });
 
   @override
@@ -24,12 +25,29 @@ class _TransactionScreenState extends State<TransactionScreen> {
   final TextEditingController _amountController = TextEditingController();
   String? _errorText;
   bool _isPayEnabled = false;
+  bool _isInitialLoading = false;
 
   @override
   void initState() {
     super.initState();
     context.read<PaymentBloc>().add(ResetBalanceVisibility());
     _amountController.addListener(_validateAmount);
+    
+    if (widget.shouldShowLoader) {
+      _startInitialLoading();
+    }
+  }
+
+  Future<void> _startInitialLoading() async {
+    setState(() {
+      _isInitialLoading = true;
+    });
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      setState(() {
+        _isInitialLoading = false;
+      });
+    }
   }
 
   @override
@@ -165,7 +183,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         ],
                       ),
                     ),
-                    Icon(Icons.radio_button_checked, color: AppColors.primaryPurple),
+                    const Icon(Icons.radio_button_checked, color: AppColors.primaryPurple),
                   ],
                 ),
               ),
@@ -239,7 +257,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
     return BlocBuilder<PaymentBloc, PaymentState>(
       builder: (context, state) {
         return LoadingOverlay(
-          isLoading: state.isLoading,
+          isLoading: state.isLoading || _isInitialLoading,
           child: Scaffold(
             backgroundColor: const Color(0xFFF5F7FA),
             resizeToAvoidBottomInset: true,
