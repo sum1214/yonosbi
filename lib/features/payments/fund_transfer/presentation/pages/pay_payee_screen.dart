@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/core/widgets/loading_overlay.dart';
 import '../../domain/models/payee_model.dart';
 import 'package:intl/intl.dart';
 import '../../../quicktrasfer/presentation/pages/review_transaction_screen.dart';
 
 class PayPayeeScreen extends StatefulWidget {
   final Payee payee;
+  final bool shouldShowLoader;
 
-  const PayPayeeScreen({super.key, required this.payee});
+  const PayPayeeScreen({super.key, required this.payee, this.shouldShowLoader = false});
 
   @override
   State<PayPayeeScreen> createState() => _PayPayeeScreenState();
@@ -20,11 +22,11 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
   String _selectedFrequency = 'One Time';
   final TextEditingController _amountController = TextEditingController();
   String? _selectedPurpose;
-  DateTime _selectedDate = DateTime.now();
+  DateTime? _selectedDate;
   int _noOfPayments = 2;
   double _currentBalance = 10000.0;
+  bool _isLoading = false;
 
-  final List<String> _modes = ['IMPS', 'NEFT', 'RTGS'];
   final List<String> _frequencies = ['One Time', 'Weekly', 'Monthly'];
   final List<String> _purposes = [
     'Transfer to Family or friends',
@@ -40,8 +42,24 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
   void initState() {
     super.initState();
     _loadBalance();
-    _amountController.addListener(() {
-      setState(() {});
+    _amountController.addListener(_onAmountChanged);
+    if (widget.shouldShowLoader) {
+      _startInitialLoading();
+    }
+  }
+
+  Future<void> _startInitialLoading() async {
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  void _onAmountChanged() {
+    setState(() {
+      List<String> modes = _availableModes;
+      if (!modes.contains(_selectedMode)) {
+        _selectedMode = modes.first;
+      }
     });
   }
 
@@ -54,6 +72,7 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
 
   @override
   void dispose() {
+    _amountController.removeListener(_onAmountChanged);
     _amountController.dispose();
     super.dispose();
   }
@@ -64,7 +83,16 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
     if (amount == null || amount <= 0) return false;
     if (amount > widget.payee.limit) return false;
     if (_selectedPurpose == null) return false;
+    if (!_isTransferNow && _selectedDate == null) return false;
     return true;
+  }
+
+  List<String> get _availableModes {
+    if (_amountController.text.isEmpty) return ['IMPS', 'NEFT', 'RTGS'];
+    double? amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) return ['IMPS', 'NEFT', 'RTGS'];
+    if (amount >= 200000) return ['NEFT', 'RTGS'];
+    return ['IMPS', 'NEFT'];
   }
 
   @override
@@ -72,69 +100,72 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
     final NumberFormat currencyFormat = NumberFormat.currency(locale: 'HI', symbol: '₹', decimalDigits: 2);
     String formattedBalance = currencyFormat.format(_currentBalance);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 30),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.chevron_left, color: Colors.black, size: 30),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            'Fund Transfer',
+            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
+          ),
         ),
-        title: const Text(
-          'Fund Transfer',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPayeeHeader(),
-                  const SizedBox(height: 20),
-                  _buildCustomTabBar(),
-                  const SizedBox(height: 25),
-                  if (!_isTransferNow) ...[
-                    const Text('Payment Frequency', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 15),
-                    _buildFrequencySelector(),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildPayeeHeader(),
+                    const SizedBox(height: 20),
+                    _buildCustomTabBar(),
                     const SizedBox(height: 25),
-                    _buildDatePicker(),
-                    if (_selectedFrequency != 'One Time') ...[
-                      const SizedBox(height: 20),
-                      _buildNoOfPaymentsSelector(),
+                    if (!_isTransferNow) ...[
+                      const Text('Payment Frequency', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 15),
+                      _buildFrequencySelector(),
+                      const SizedBox(height: 25),
+                      _buildDatePicker(),
+                      if (_selectedFrequency != 'One Time') ...[
+                        const SizedBox(height: 20),
+                        _buildNoOfPaymentsSelector(),
+                      ],
+                      const SizedBox(height: 25),
                     ],
+                    const Text('Transaction Details', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 15),
+                    _buildAmountInput(),
                     const SizedBox(height: 25),
+                    const Text('Mode of Transfer', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 15),
+                    _buildModeSelector(),
+                    const SizedBox(height: 10),
+                    Text(
+                      _getModeInfo(),
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                    ),
+                    const SizedBox(height: 25),
+                    _buildPurposeDropdown(),
+                    const SizedBox(height: 25),
+                    const Text('Paying from', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 15),
+                    _buildSourceAccount(formattedBalance),
+                    const SizedBox(height: 30),
                   ],
-                  const Text('Transaction Details', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 15),
-                  _buildAmountInput(),
-                  const SizedBox(height: 25),
-                  const Text('Mode of Transfer', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 15),
-                  _buildModeSelector(),
-                  const SizedBox(height: 10),
-                  Text(
-                    _getModeInfo(),
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                  ),
-                  const SizedBox(height: 25),
-                  _buildPurposeDropdown(),
-                  const SizedBox(height: 25),
-                  const Text('Paying from', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 15),
-                  _buildSourceAccount(formattedBalance),
-                  const SizedBox(height: 30),
-                ],
+                ),
               ),
             ),
-          ),
-          _buildProceedButton(),
-        ],
+            _buildProceedButton(),
+          ],
+        ),
       ),
     );
   }
@@ -200,7 +231,10 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
           ),
           Expanded(
             child: InkWell(
-              onTap: () => setState(() => _isTransferNow = false),
+              onTap: () => setState(() {
+                _isTransferNow = false;
+                _selectedDate = null;
+              }),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
@@ -235,7 +269,10 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
           bool isSelected = _selectedFrequency == freq;
           return Expanded(
             child: InkWell(
-              onTap: () => setState(() => _selectedFrequency = freq),
+              onTap: () => setState(() {
+                _selectedFrequency = freq;
+                _selectedDate = null;
+              }),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
@@ -266,15 +303,7 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
       children: [
         Text(label, style: const TextStyle(color: Colors.grey, fontSize: 14)),
         InkWell(
-          onTap: () async {
-            DateTime? picked = await showDatePicker(
-              context: context,
-              initialDate: _selectedDate,
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
-            );
-            if (picked != null) setState(() => _selectedDate = picked);
-          },
+          onTap: _showCustomDatePicker,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
@@ -283,13 +312,132 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(DateFormat('dd/MM/yyyy').format(_selectedDate), style: const TextStyle(fontSize: 16)),
+                Text(
+                  _selectedDate != null ? DateFormat('dd/MM/yyyy').format(_selectedDate!) : 'Select Date',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: _selectedDate == null ? Colors.grey : Colors.black,
+                  ),
+                ),
                 const Icon(Icons.calendar_today_outlined, color: AppColors.primaryPurple, size: 20),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  void _showCustomDatePicker() {
+    DateTime tempDate = _selectedDate ?? DateTime.now();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.9,
+              decoration: const BoxDecoration(
+                color: Color(0xFF1A73E8), // Blue background from image
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 10, 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Payment Date',
+                          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('DD/MM/YYYY', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              DateFormat('dd/MM/yyyy').format(tempDate),
+                              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            const Icon(Icons.calendar_today, color: Colors.white70),
+                          ],
+                        ),
+                        const Divider(color: Colors.white54, thickness: 1),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: const ColorScheme.light(
+                            onPrimary: Colors.white, // Selected text
+                            primary: Colors.white, // Selection background
+                            onSurface: Colors.white, // Days of week
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(foregroundColor: Colors.white),
+                          ),
+                        ),
+                        child: CalendarDatePicker(
+                          initialDate: tempDate,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          onDateChanged: (date) {
+                            setModalState(() {
+                              tempDate = date;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          setState(() => _selectedDate = tempDate);
+                          Navigator.pop(context);
+                        },
+                        backgroundColor: Colors.white,
+                        child: const Icon(Icons.arrow_forward, color: Color(0xFF1A73E8)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -344,13 +492,14 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
   }
 
   Widget _buildModeSelector() {
+    List<String> modes = _availableModes;
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(25),
       ),
       child: Row(
-        children: _modes.map((mode) {
+        children: modes.map((mode) {
           bool isSelected = _selectedMode == mode;
           return Expanded(
             child: InkWell(
@@ -511,9 +660,14 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (context) => ReviewTransactionScreen(
+                payeeName: widget.payee.name,
                 bankName: widget.payee.bankName,
                 accountNumber: widget.payee.accountNumber,
                 amount: _amountController.text,
+                isScheduled: !_isTransferNow,
+                date: _selectedDate != null ? DateFormat('dd/MM/yyyy').format(_selectedDate!) : null,
+                frequency: _selectedFrequency,
+                remark: _selectedPurpose,
               ),
             );
           } : null,

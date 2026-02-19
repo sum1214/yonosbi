@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/core/widgets/loading_overlay.dart';
 import '../../domain/models/payee_model.dart';
 import '../../data/repositories/payee_repository.dart';
 import 'select_bank_screen.dart';
@@ -36,113 +37,114 @@ class _FundTransferScreenState extends State<FundTransferScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 30),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.chevron_left, color: Colors.black, size: 30),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            'Domestic Fund Transfer',
+            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
+          ),
         ),
-        title: const Text(
-          'Domestic Fund Transfer',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
-        ),
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  const Text('Recent', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  const SizedBox(height: 15),
-                  Center(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const TransactionHistoryScreen()),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.primaryPurple),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text(
-                          'Transaction History',
-                          style: TextStyle(color: AppColors.primaryPurple, fontWeight: FontWeight.bold),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    const Text('Recent', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    const SizedBox(height: 15),
+                    Center(
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const TransactionHistoryScreen()),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.primaryPurple),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: const Text(
+                            'Transaction History',
+                            style: TextStyle(color: AppColors.primaryPurple, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Transfer to Self Accounts',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildSelfAccountItem(context),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Transfer to Other Payees',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildSearchBar(),
-                  const SizedBox(height: 15),
-                  if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_payees.isEmpty)
-                    _buildPayeeItem(context, Payee(name: 'Shubham', accountNumber: '50100803999811', bankName: 'HDFC BANK', nickname: 'Shubh', limit: 100000))
-                  else
-                    ..._payees.map((payee) => _buildPayeeItem(context, payee)),
-                  const SizedBox(height: 100), // Space for bottom button
-                ],
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Transfer to Self Accounts',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                    ),
+                    const SizedBox(height: 15),
+                    _buildSelfAccountItem(context),
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Transfer to Other Payees',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                    ),
+                    const SizedBox(height: 15),
+                    _buildSearchBar(),
+                    const SizedBox(height: 15),
+                    if (_payees.isEmpty && !_isLoading)
+                      _buildPayeeItem(context, Payee(name: 'Shubham', accountNumber: '50100803999811', bankName: 'HDFC BANK', nickname: 'Shubh', limit: 100000))
+                    else
+                      ..._payees.map((payee) => _buildPayeeItem(context, payee)),
+                    const SizedBox(height: 100), // Space for bottom button
+                  ],
+                ),
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SelectBankScreen()),
-                    );
-                    if (result == true) {
-                      _loadPayees();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryPurple,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text('Add Payee', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                    ],
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SelectBankScreen()),
+                      );
+                      if (result == true) {
+                        _loadPayees();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryPurple,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text('Add Payee', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -225,7 +227,7 @@ class _FundTransferScreenState extends State<FundTransferScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PayPayeeScreen(payee: payee),
+                  builder: (context) => PayPayeeScreen(payee: payee, shouldShowLoader: true),
                 ),
               );
             },

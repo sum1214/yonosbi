@@ -1,6 +1,8 @@
 import 'package:fast_contacts/fast_contacts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/features/payments/upi/presentation/bloc/payment_bloc.dart';
 import 'transaction_screen.dart';
 
 class PaymentScreen extends StatelessWidget {
@@ -37,19 +39,25 @@ class PaymentScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  displayName,
-                  style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  phone,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    displayName,
+                    style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  Text(
+                    phone,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -78,6 +86,7 @@ class PaymentScreen extends StatelessWidget {
                       builder: (context) => TransactionScreen(
                         contactName: contact.displayName,
                         contactPhone: contact.phones.isNotEmpty ? contact.phones.first.number : '',
+                        shouldShowLoader: true,
                       ),
                     ),
                   );

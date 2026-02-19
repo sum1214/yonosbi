@@ -53,6 +53,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
           builder: (context) => TransactionScreen(
             contactName: name,
             contactPhone: address,
+            shouldShowLoader: true,
           ),
         ),
       );
