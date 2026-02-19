@@ -29,9 +29,8 @@ class _ManualUpiPayScreenState extends State<ManualUpiPayScreen> {
 
   void _handleInputChange() {
     final text = _controller.text.trim();
-    if (text.length == 10) {
-      context.read<PaymentBloc>().add(SearchRecipient(text));
-    }
+    // Always add the event so the BLoC can handle showing or hiding the recipient based on input length
+    context.read<PaymentBloc>().add(SearchRecipient(text));
   }
 
   @override
@@ -64,7 +63,7 @@ class _ManualUpiPayScreenState extends State<ManualUpiPayScreen> {
                     decoration: InputDecoration(
                       hintText: 'Enter UPI ID or Number',
                       prefixIcon: const Icon(Icons.search),
-                      suffixIcon: state.showRecipient ? const Icon(Icons.check_circle, color: Colors.green) : null,
+                      suffixIcon: state.showRecipient && !state.isLoading ? const Icon(Icons.check_circle, color: Colors.green) : null,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(color: AppColors.primaryPurple),

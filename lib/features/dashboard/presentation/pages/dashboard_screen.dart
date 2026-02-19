@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/features/payments/quicktrasfer/presentation/pages/quick_transfer_select_bank_screen.dart';
+import 'package:yonosbi/features/payments/upi/presentation/pages/scanner_screen.dart';
+import 'package:yonosbi/features/payments/bank/presentation/pages/bank_account_landing_screen.dart';
+import 'package:yonosbi/features/payments/fund_transfer/presentation/pages/fund_transfer_screen.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../payments/upi/presentation/pages/contacts_screen.dart';
 import '../../../payments/upi/presentation/pages/manual_upi_pay_screen.dart';
@@ -236,8 +240,12 @@ class DashboardScreen extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),
           child: _buildGrid([
-            _gridItem(Icons.sync, 'Quick\nTransfer', subLabel: 'Upto ₹ 50,000\nTo Any A/C'),
-            _gridItem(Icons.person_add_alt_1_outlined, 'Send\nMoney', subLabel: 'To Own/Other\nAccount'),
+            _gridItem(Icons.sync, 'Quick\nTransfer', subLabel: 'Upto ₹ 50,000\nTo Any A/C', onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const QuickTransferSelectBankScreen()));
+            }),
+            _gridItem(Icons.person_add_alt_1_outlined, 'Send\nMoney', subLabel: 'To Own/Other\nAccount', onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const FundTransferScreen()));
+            }),
             _gridItem(Icons.language, 'Send\nMoney\nAbroad'),
             _gridItem(Icons.calendar_month_outlined, 'Schedule\nPayments'),
           ], childAspectRatio: 0.75),
@@ -318,7 +326,9 @@ class DashboardScreen extends StatelessWidget {
       _gridItem(Icons.qr_code, 'Pay UPI ID or\nNumber', onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const ManualUpiPayScreen()));
       }),
-      _gridItem(Icons.account_balance, 'Pay to Bank\nA/C'),
+      _gridItem(Icons.account_balance, 'Pay to Bank\nA/C', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const BankAccountLandingScreen()));
+      }),
       _gridItem(Icons.history, 'View\nTransaction'),
     ]);
   }
