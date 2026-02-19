@@ -129,7 +129,7 @@ class _UpiPinScreenState extends State<UpiPinScreen> {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           const Text(
-            'XXXX8881',
+            'XXXXXXXX1234',
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 12),

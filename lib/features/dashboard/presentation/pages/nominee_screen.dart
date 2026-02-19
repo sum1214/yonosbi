@@ -72,7 +72,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      localIsVisible ? '36991604135' : 'XXXXXXXX4135',
+                                      localIsVisible ? 'XXXXXXXX1234' : 'XXXXXXXX1234',
                                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                     ),
                                     const SizedBox(width: 8),
@@ -237,7 +237,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _isAccountVisible ? '36991604135' : 'XXXXXXXX4135',
+                        _isAccountVisible ? 'XXXXXXXX1234' : 'XXXXXXXX1234',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                       const Text('Savings Account', style: TextStyle(color: Colors.grey, fontSize: 12)),
@@ -324,7 +324,6 @@ class _NomineeScreenState extends State<NomineeScreen> {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Column(

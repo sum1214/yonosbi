@@ -172,7 +172,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      localIsVisible ? '36991604135' : 'XXXXXXXX4135',
+                                      localIsVisible ? '36991601234' : 'XXXXXXXX1234',
                                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                     ),
                                     const SizedBox(width: 8),
@@ -835,7 +835,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 Row(
                   children: [
                     Text(
-                      _isAccountVisible ? '36991604135' : 'XXXXXXXX4135',
+                      _isAccountVisible ? '36991601234' : 'XXXXXXXX1234',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                     const SizedBox(width: 8),

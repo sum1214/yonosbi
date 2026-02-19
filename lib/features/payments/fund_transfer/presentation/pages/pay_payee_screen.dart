@@ -639,7 +639,7 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('XXXXXXXX8881', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text('XXXXXXXX1234', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const Text('Savings Account', style: TextStyle(color: Colors.grey, fontSize: 13)),
           const SizedBox(height: 5),
           Text('Available Balance: $formattedBalance/-', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),

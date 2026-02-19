@@ -285,7 +285,7 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
               Row(
                 children: [
                   Text(
-                    _isAccountVisible ? '36991604135' : 'XXXXXXXX4135',
+                    _isAccountVisible ? '36991601234' : 'XXXXXXXX1234',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   const SizedBox(width: 8),

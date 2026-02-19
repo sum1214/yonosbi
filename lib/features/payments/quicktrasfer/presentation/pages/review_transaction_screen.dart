@@ -197,7 +197,7 @@ class _ReviewTransactionScreenState extends State<ReviewTransactionScreen> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'Account Number: XXXXXXXX8881',
+                          'Account Number: XXXXXXXX1234',
                           style: TextStyle(fontSize: 12, color: AppColors.textGrey),
                         ),
                       ],
