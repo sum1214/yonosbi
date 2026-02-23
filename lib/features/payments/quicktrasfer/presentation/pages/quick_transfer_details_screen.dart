@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/core/widgets/loading_overlay.dart';
+import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:yonosbi/features/payments/fund_transfer/data/repositories/payee_repository.dart';
 import 'package:yonosbi/features/payments/fund_transfer/domain/models/payee_model.dart';
 import 'package:yonosbi/features/payments/fund_transfer/presentation/pages/pay_payee_screen.dart';
@@ -24,7 +25,6 @@ class _QuickTransferDetailsScreenState extends State<QuickTransferDetailsScreen>
   final TextEditingController _amountController = TextEditingController();
   bool _savePayee = false;
   String _selectedPurpose = 'Purpose (Recommended)';
-  double _currentBalance = 10000.0;
   bool _isLoading = false;
   final PayeeRepository _payeeRepository = PayeeRepository();
 
@@ -41,7 +41,6 @@ class _QuickTransferDetailsScreenState extends State<QuickTransferDetailsScreen>
   @override
   void initState() {
     super.initState();
-    _loadBalance();
     _accountNumberController.addListener(_updateState);
     _confirmController.addListener(_onConfirmAccountNumberChanged);
     _nameController.addListener(_updateState);
@@ -61,13 +60,6 @@ class _QuickTransferDetailsScreenState extends State<QuickTransferDetailsScreen>
       }
     }
     _updateState();
-  }
-
-  Future<void> _loadBalance() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _currentBalance = prefs.getDouble('account_balance') ?? 10000.0;
-    });
   }
 
   @override
@@ -94,183 +86,187 @@ class _QuickTransferDetailsScreenState extends State<QuickTransferDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat currencyFormat = NumberFormat.currency(locale: 'HI', symbol: '₹', decimalDigits: 2);
-    String formattedBalance = currencyFormat.format(_currentBalance);
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        final NumberFormat currencyFormat = NumberFormat.currency(locale: 'HI', symbol: '₹', decimalDigits: 2);
+        String formattedBalance = currencyFormat.format(state.balance);
 
-    return LoadingOverlay(
-      isLoading: _isLoading,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: const Text(
-            'Quick Transfer',
-            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade200),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(Icons.account_balance, color: AppColors.primaryPurple),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      widget.bankName.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                  ],
-                ),
+        return LoadingOverlay(
+          isLoading: _isLoading,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () => Navigator.pop(context),
               ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Funds will be transferred on the basis of account number only. IFSC code is not required.',
-                  style: TextStyle(fontSize: 12, color: AppColors.textGrey),
-                ),
+              title: const Text(
+                'Quick Transfer',
+                style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                child: Text('Payee Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              ),
-              _buildTextField(
-                _accountNumberController,
-                'Account Number',
-                keyboardType: TextInputType.number,
-              ),
-              _buildTextField(
-                _confirmController,
-                'Confirm Account Number',
-                keyboardType: TextInputType.number,
-                suffixIcon: (_accountNumberController.text.isNotEmpty &&
-                        _accountNumberController.text == _confirmController.text)
-                    ? const Icon(Icons.check_circle, color: AppColors.primaryPurple, size: 20)
-                    : null,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(child: _buildTextField(_nameController, 'Account Name', padding: 0)),
-                    TextButton(
-                      onPressed: () => _showVerificationPopup(),
-                      child: const Text('Verify', style: TextStyle(color: AppColors.primaryPurple, fontSize: 12)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: Colors.grey.shade50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Do you want to save payee?', style: TextStyle(fontSize: 13, color: AppColors.primaryPurple)),
-                    Switch(
-                      value: _savePayee,
-                      onChanged: (val) => setState(() => _savePayee = val),
-                      activeColor: AppColors.primaryPurple,
-                    ),
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                child: Text('Transaction Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              ),
-              _buildTextField(
-                _amountController,
-                'Amount',
-                helperText: 'Transfer a maximum of ₹50,000 via quick transfer',
-                keyboardType: TextInputType.number,
-                prefixText: '₹ ',
-              ),
-              _buildDropdownField(_selectedPurpose),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                child: Text('Paying from', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textGrey)),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('XXXXXXXX1234', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const Text('Savings Account', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
-                    Text('Current Balance: $formattedBalance/-', style: const TextStyle(fontSize: 11, color: AppColors.textGrey)),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 45,
-                  child: ElevatedButton(
-                    onPressed: _isFormValid() ? () async {
-                      setState(() => _isLoading = true);
-                      await Future.delayed(const Duration(seconds: 2));
-                      if (!mounted) return;
-                      setState(() => _isLoading = false);
-                      
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => ReviewTransactionScreen(
-                          payeeName: _nameController.text,
-                          bankName: widget.bankName,
-                          accountNumber: _accountNumberController.text,
-                          amount: _amountController.text,
-                          remark: _selectedPurpose,
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade200),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Icon(Icons.account_balance, color: AppColors.primaryPurple),
                         ),
-                      );
-                    } : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isFormValid() ? AppColors.primaryPurple : Colors.grey.shade300,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                    ),
-                    child: Text(
-                      'Proceed',
-                      style: TextStyle(color: _isFormValid() ? Colors.white : Colors.grey),
+                        const SizedBox(width: 12),
+                        Text(
+                          widget.bankName.toUpperCase(),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Funds will be transferred on the basis of account number only. IFSC code is not required.',
+                      style: TextStyle(fontSize: 12, color: AppColors.textGrey),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                    child: Text('Payee Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  ),
+                  _buildTextField(
+                    _accountNumberController,
+                    'Account Number',
+                    keyboardType: TextInputType.number,
+                  ),
+                  _buildTextField(
+                    _confirmController,
+                    'Confirm Account Number',
+                    keyboardType: TextInputType.number,
+                    suffixIcon: (_accountNumberController.text.isNotEmpty &&
+                            _accountNumberController.text == _confirmController.text)
+                        ? const Icon(Icons.check_circle, color: AppColors.primaryPurple, size: 20)
+                        : null,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(child: _buildTextField(_nameController, 'Account Name', padding: 0)),
+                        TextButton(
+                          onPressed: () => _showVerificationPopup(),
+                          child: const Text('Verify', style: TextStyle(color: AppColors.primaryPurple, fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    color: Colors.grey.shade50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Do you want to save payee?', style: TextStyle(fontSize: 13, color: AppColors.primaryPurple)),
+                        Switch(
+                          value: _savePayee,
+                          onChanged: (val) => setState(() => _savePayee = val),
+                          activeColor: AppColors.primaryPurple,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                    child: Text('Transaction Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  ),
+                  _buildTextField(
+                    _amountController,
+                    'Amount',
+                    helperText: 'Transfer a maximum of ₹50,000 via quick transfer',
+                    keyboardType: TextInputType.number,
+                    prefixText: '₹ ',
+                  ),
+                  _buildDropdownField(_selectedPurpose),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                    child: Text('Paying from', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textGrey)),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('XXXXXXXX1234', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text('Savings Account', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
+                        Text('Current Balance: $formattedBalance/-', style: const TextStyle(fontSize: 11, color: AppColors.textGrey)),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton(
+                        onPressed: _isFormValid() ? () async {
+                          setState(() => _isLoading = true);
+                          await Future.delayed(const Duration(seconds: 2));
+                          if (!mounted) return;
+                          setState(() => _isLoading = false);
+                          
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => ReviewTransactionScreen(
+                              payeeName: _nameController.text,
+                              bankName: widget.bankName,
+                              accountNumber: _accountNumberController.text,
+                              amount: _amountController.text,
+                              remark: _selectedPurpose,
+                            ),
+                          );
+                        } : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isFormValid() ? AppColors.primaryPurple : Colors.grey.shade300,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                        ),
+                        child: Text(
+                          'Proceed',
+                          style: TextStyle(color: _isFormValid() ? Colors.white : Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

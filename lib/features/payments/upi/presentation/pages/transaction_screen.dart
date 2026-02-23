@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/core/widgets/loading_overlay.dart';
+import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:yonosbi/features/payments/upi/presentation/bloc/payment_bloc.dart';
 import 'upi_pin_screen.dart';
 
@@ -91,152 +92,156 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Widget _buildPaymentMethodSheet() {
     return BlocBuilder<PaymentBloc, PaymentState>(
-      builder: (context, state) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Choose method to pay with',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const Icon(Icons.keyboard_arrow_up, color: Colors.grey),
-                ],
+      builder: (context, paymentState) {
+        return BlocBuilder<DashboardBloc, DashboardState>(
+          builder: (context, dashboardState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'BANK ACCOUNTS',
-                    style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add New'),
-                    style: TextButton.styleFrom(foregroundColor: AppColors.primaryPurple),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primaryPurple.withOpacity(0.3)),
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppColors.primaryPurple.withOpacity(0.02),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF0054A6),
-                        shape: BoxShape.circle,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Choose method to pay with',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                      child: const Icon(Icons.account_balance, color: Colors.white, size: 20),
+                      const Icon(Icons.keyboard_arrow_up, color: Colors.grey),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'BANK ACCOUNTS',
+                        style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('Add New'),
+                        style: TextButton.styleFrom(foregroundColor: AppColors.primaryPurple),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.primaryPurple.withOpacity(0.3)),
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.primaryPurple.withOpacity(0.02),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'STATE BANK OF INDIA 1234',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF0054A6),
+                            shape: BoxShape.circle,
                           ),
-                          Row(
+                          child: const Icon(Icons.account_balance, color: Colors.white, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Savings Account',
-                                style: TextStyle(color: Colors.grey, fontSize: 12),
+                                'STATE BANK OF INDIA 1234',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                               ),
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () {
-                                  context.read<PaymentBloc>().add(CheckBalance());
-                                },
-                                child: Text(
-                                  state.showBalance 
-                                      ? '₹ ${state.balance.toStringAsFixed(2)}' 
-                                      : 'Check Balance',
-                                  style: TextStyle(
-                                    color: AppColors.primaryPurple, 
-                                    fontSize: 12, 
-                                    decoration: state.showBalance ? TextDecoration.none : TextDecoration.underline,
-                                    fontWeight: state.showBalance ? FontWeight.bold : FontWeight.normal,
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Savings Account',
+                                    style: TextStyle(color: Colors.grey, fontSize: 12),
                                   ),
-                                ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () {
+                                      context.read<PaymentBloc>().add(CheckBalance());
+                                    },
+                                    child: Text(
+                                      paymentState.showBalance 
+                                          ? '₹ ${dashboardState.balance.toStringAsFixed(2)}' 
+                                          : 'Check Balance',
+                                      style: TextStyle(
+                                        color: AppColors.primaryPurple, 
+                                        fontSize: 12, 
+                                        decoration: paymentState.showBalance ? TextDecoration.none : TextDecoration.underline,
+                                        fontWeight: paymentState.showBalance ? FontWeight.bold : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const Icon(Icons.radio_button_checked, color: AppColors.primaryPurple),
+                      ],
                     ),
-                    const Icon(Icons.radio_button_checked, color: AppColors.primaryPurple),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: _isPayEnabled ? () {
-                    Navigator.pop(context); // Close sheet
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UpiPinScreen(
-                          amount: _amountController.text,
-                          contactName: widget.contactName,
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: _isPayEnabled ? () {
+                        Navigator.pop(context); // Close sheet
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UpiPinScreen(
+                              amount: _amountController.text,
+                              contactName: widget.contactName,
+                            ),
+                          ),
+                        );
+                      } : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryPurple,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                    );
-                  } : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryPurple,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: Text(
-                    'Pay ₹${_amountController.text.isEmpty ? '0' : _amountController.text}',
-                    style: TextStyle(color: _isPayEnabled ? Colors.white : Colors.grey.shade600, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Powered by | ', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    Text(
-                      'UPI',
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
+                      child: Text(
+                        'Pay ₹${_amountController.text.isEmpty ? '0' : _amountController.text}',
+                        style: TextStyle(color: _isPayEnabled ? Colors.white : Colors.grey.shade600, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 15),
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Powered by | ', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        Text(
+                          'UPI',
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            );
+          },
         );
       },
     );

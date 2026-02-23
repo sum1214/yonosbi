@@ -14,7 +14,7 @@ class DashboardState extends Equatable {
     this.isBalanceVisible = false,
     this.isRefreshing = false,
     this.refreshTimer = 0,
-    this.balance = 684.80,
+    this.balance = 100000,
   });
 
   DashboardState copyWith({

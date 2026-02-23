@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
-import 'package:yonosbi/features/payments/upi/presentation/bloc/payment_bloc.dart';
+import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'review_transaction_screen.dart';
 
 class AmountEntryScreen extends StatefulWidget {
@@ -234,7 +234,7 @@ class _AmountEntryScreenState extends State<AmountEntryScreen> {
                 children: [
                   const Text('Choose account to pay with', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
-                  BlocBuilder<PaymentBloc, PaymentState>(
+                  BlocBuilder<DashboardBloc, DashboardState>(
                     builder: (context, state) {
                       return Container(
                         padding: const EdgeInsets.all(12),

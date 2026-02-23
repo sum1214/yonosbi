@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/core/widgets/loading_overlay.dart';
+import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../domain/models/payee_model.dart';
 import 'package:intl/intl.dart';
 import '../../../quicktrasfer/presentation/pages/review_transaction_screen.dart';
@@ -24,7 +25,6 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
   String? _selectedPurpose;
   DateTime? _selectedDate;
   int _noOfPayments = 2;
-  double _currentBalance = 10000.0;
   bool _isLoading = false;
 
   final List<String> _frequencies = ['One Time', 'Weekly', 'Monthly'];
@@ -41,7 +41,6 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadBalance();
     _amountController.addListener(_onAmountChanged);
     if (widget.shouldShowLoader) {
       _startInitialLoading();
@@ -60,13 +59,6 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
       if (!modes.contains(_selectedMode)) {
         _selectedMode = modes.first;
       }
-    });
-  }
-
-  Future<void> _loadBalance() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _currentBalance = prefs.getDouble('account_balance') ?? 18494.55;
     });
   }
 
@@ -97,76 +89,80 @@ class _PayPayeeScreenState extends State<PayPayeeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat currencyFormat = NumberFormat.currency(locale: 'HI', symbol: '₹', decimalDigits: 2);
-    String formattedBalance = currencyFormat.format(_currentBalance);
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        final NumberFormat currencyFormat = NumberFormat.currency(locale: 'HI', symbol: '₹', decimalDigits: 2);
+        String formattedBalance = currencyFormat.format(state.balance);
 
-    return LoadingOverlay(
-      isLoading: _isLoading,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.chevron_left, color: Colors.black, size: 30),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: const Text(
-            'Fund Transfer',
-            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
-          ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPayeeHeader(),
-                    const SizedBox(height: 20),
-                    _buildCustomTabBar(),
-                    const SizedBox(height: 25),
-                    if (!_isTransferNow) ...[
-                      const Text('Payment Frequency', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 15),
-                      _buildFrequencySelector(),
-                      const SizedBox(height: 25),
-                      _buildDatePicker(),
-                      if (_selectedFrequency != 'One Time') ...[
-                        const SizedBox(height: 20),
-                        _buildNoOfPaymentsSelector(),
-                      ],
-                      const SizedBox(height: 25),
-                    ],
-                    const Text('Transaction Details', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 15),
-                    _buildAmountInput(),
-                    const SizedBox(height: 25),
-                    const Text('Mode of Transfer', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 15),
-                    _buildModeSelector(),
-                    const SizedBox(height: 10),
-                    Text(
-                      _getModeInfo(),
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                    ),
-                    const SizedBox(height: 25),
-                    _buildPurposeDropdown(),
-                    const SizedBox(height: 25),
-                    const Text('Paying from', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 15),
-                    _buildSourceAccount(formattedBalance),
-                    const SizedBox(height: 30),
-                  ],
-                ),
+        return LoadingOverlay(
+          isLoading: _isLoading,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.chevron_left, color: Colors.black, size: 30),
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: const Text(
+                'Fund Transfer',
+                style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
               ),
             ),
-            _buildProceedButton(),
-          ],
-        ),
-      ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildPayeeHeader(),
+                        const SizedBox(height: 20),
+                        _buildCustomTabBar(),
+                        const SizedBox(height: 25),
+                        if (!_isTransferNow) ...[
+                          const Text('Payment Frequency', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 15),
+                          _buildFrequencySelector(),
+                          const SizedBox(height: 25),
+                          _buildDatePicker(),
+                          if (_selectedFrequency != 'One Time') ...[
+                            const SizedBox(height: 20),
+                            _buildNoOfPaymentsSelector(),
+                          ],
+                          const SizedBox(height: 25),
+                        ],
+                        const Text('Transaction Details', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 15),
+                        _buildAmountInput(),
+                        const SizedBox(height: 25),
+                        const Text('Mode of Transfer', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 15),
+                        _buildModeSelector(),
+                        const SizedBox(height: 10),
+                        Text(
+                          _getModeInfo(),
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                        ),
+                        const SizedBox(height: 25),
+                        _buildPurposeDropdown(),
+                        const SizedBox(height: 25),
+                        const Text('Paying from', style: TextStyle(color: AppColors.textDark, fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 15),
+                        _buildSourceAccount(formattedBalance),
+                        const SizedBox(height: 30),
+                      ],
+                    ),
+                  ),
+                ),
+                _buildProceedButton(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
