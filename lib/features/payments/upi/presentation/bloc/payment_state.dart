@@ -9,7 +9,7 @@ class PaymentState extends Equatable {
   final bool showRecipient;
 
   const PaymentState({
-    this.balance = 10000.0,
+    this.balance = 100000.0,
     this.isLoading = false,
     this.showBalance = false,
     this.searchResultName = '',
