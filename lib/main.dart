@@ -17,7 +17,7 @@ class YonoSbiApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => DashboardBloc()),
+        BlocProvider(create: (context) => DashboardBloc()..add(DashboardLoadBalance())),
         BlocProvider(create: (context) => PaymentBloc()..add(LoadBalance())),
         BlocProvider(create: (context) => SendMoneyAbroadBloc()),
       ],

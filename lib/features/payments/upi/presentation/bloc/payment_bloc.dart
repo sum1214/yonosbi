@@ -18,7 +18,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _onLoadBalance(LoadBalance event, Emitter<PaymentState> emit) async {
     // Balance is now managed by DashboardBloc. 
-    // This can be used to sync with SharedPreferences if needed, but UI should use DashboardState.
     emit(state.copyWith());
   }
 
@@ -32,12 +31,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(isLoading: true));
     await Future.delayed(const Duration(seconds: 2));
     
-    final prefs = await SharedPreferences.getInstance();
-    double currentBalance = prefs.getDouble('account_balance') ?? 684.80;
-    double newBalance = currentBalance - event.amount;
-    
-    await prefs.setDouble('account_balance', newBalance);
-    // Note: This only updates local state. DashboardBloc should also be updated.
+    // Note: DashboardBloc should be updated by the UI calling ProcessPayment
     emit(state.copyWith(isLoading: false, showBalance: false));
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'transaction_status_screen.dart';
 
 class UpiPinScreen extends StatefulWidget {
@@ -39,6 +41,11 @@ class _UpiPinScreenState extends State<UpiPinScreen> {
     if (_pin.length == 6) {
       bool isSuccess = _pin == _correctPin;
       
+      if (isSuccess) {
+        final double amount = double.tryParse(widget.amount) ?? 0.0;
+        context.read<DashboardBloc>().add(UpdateBalance(amount));
+      }
+
       Navigator.push(
         context,
         MaterialPageRoute(

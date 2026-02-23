@@ -34,3 +34,13 @@ class RefreshTimerTick extends DashboardEvent {
   @override
   List<Object> get props => [secondsRemaining];
 }
+
+class UpdateBalance extends DashboardEvent {
+  final double amount;
+  const UpdateBalance(this.amount);
+
+  @override
+  List<Object> get props => [amount];
+}
+
+class DashboardLoadBalance extends DashboardEvent {}

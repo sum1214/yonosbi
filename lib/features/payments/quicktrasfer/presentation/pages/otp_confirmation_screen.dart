@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'transaction_success_screen.dart';
 import '../../../scheduled_payments/data/repositories/scheduled_payment_repository.dart';
 import '../../../scheduled_payments/domain/models/scheduled_payment_model.dart';
@@ -75,6 +77,12 @@ class _OtpConfirmationScreenState extends State<OtpConfirmationScreen> {
         scheduledTime: DateFormat('dd/MM/yyyy at hh:mm a').format(DateTime.now()),
       );
       await _repository.saveScheduledPayment(payment);
+    } else {
+      // For immediate transfers, update balance
+      final double amount = double.tryParse(widget.amount ?? '0') ?? 0.0;
+      if (amount > 0) {
+        context.read<DashboardBloc>().add(UpdateBalance(amount));
+      }
     }
 
     if (!mounted) return;

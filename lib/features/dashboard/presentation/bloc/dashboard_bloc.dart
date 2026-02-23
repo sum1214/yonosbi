@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
@@ -9,6 +10,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   Timer? _timer;
 
   DashboardBloc() : super(const DashboardState()) {
+    on<DashboardLoadBalance>(_onDashboardLoadBalance);
+    
     on<TabChanged>((event, emit) {
       emit(state.copyWith(selectedIndex: event.index));
     });
@@ -40,6 +43,24 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         emit(state.copyWith(refreshTimer: event.secondsRemaining));
       }
     });
+
+    on<UpdateBalance>(_onUpdateBalance);
+  }
+
+  Future<void> _onDashboardLoadBalance(DashboardLoadBalance event, Emitter<DashboardState> emit) async {
+    final prefs = await SharedPreferences.getInstance();
+    double balance = prefs.getDouble('account_balance') ?? 100000;
+    if (!prefs.containsKey('account_balance')) {
+      await prefs.setDouble('account_balance', 100000);
+    }
+    emit(state.copyWith(balance: balance));
+  }
+
+  Future<void> _onUpdateBalance(UpdateBalance event, Emitter<DashboardState> emit) async {
+    final newBalance = state.balance - event.amount;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('account_balance', newBalance);
+    emit(state.copyWith(balance: newBalance));
   }
 
   @override

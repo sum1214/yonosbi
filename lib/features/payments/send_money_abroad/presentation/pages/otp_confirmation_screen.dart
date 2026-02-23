@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'success_screen.dart';
 
 class OtpConfirmationScreen extends StatefulWidget {
-  const OtpConfirmationScreen({super.key});
+  final String? amount;
+  const OtpConfirmationScreen({super.key, this.amount});
 
   @override
   State<OtpConfirmationScreen> createState() => _OtpConfirmationScreenState();
@@ -37,6 +40,16 @@ class _OtpConfirmationScreenState extends State<OtpConfirmationScreen> {
     setState(() {
       _isSubmitEnabled = _controllers.every((c) => c.text.isNotEmpty);
     });
+  }
+
+  void _handleSubmit() {
+    if (widget.amount != null) {
+      final double amount = double.tryParse(widget.amount!.replaceAll(',', '')) ?? 0.0;
+      if (amount > 0) {
+        context.read<DashboardBloc>().add(UpdateBalance(amount));
+      }
+    }
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const SuccessScreen()));
   }
 
   @override
@@ -147,9 +160,7 @@ class _OtpConfirmationScreenState extends State<OtpConfirmationScreen> {
                         const SizedBox(height: 32),
                         Center(
                           child: ElevatedButton(
-                            onPressed: _isSubmitEnabled ? () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const SuccessScreen()));
-                            } : null,
+                            onPressed: _isSubmitEnabled ? _handleSubmit : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _isSubmitEnabled ? Colors.white : Colors.white.withOpacity(0.3),
                               minimumSize: const Size(double.infinity, 48),

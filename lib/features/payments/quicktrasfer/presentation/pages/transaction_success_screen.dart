@@ -2,7 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 
 class TransactionSuccessScreen extends StatelessWidget {
-  const TransactionSuccessScreen({super.key});
+  final String amount;
+  final String payeeName;
+  final String bankName;
+  final String accountNumber;
+  final String remark;
+
+  const TransactionSuccessScreen({
+    super.key,
+    this.amount = '1.00',
+    this.payeeName = 'Shubham Kumar',
+    this.bankName = 'PUNJAB NATIONAL BANK',
+    this.accountNumber = '1255000105261585',
+    this.remark = 'Transfer to Family or friends',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,28 +27,28 @@ class TransactionSuccessScreen extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.only(top: 60, bottom: 24),
             decoration: const BoxDecoration(
-              color: Color(0xFF4CAF50), // Green color from image
+              color: Color(0xFF4CAF50), // Green color
             ),
-            child: const Column(
+            child: Column(
               children: [
-                Text(
+                const Text(
                   'Transaction Successful!',
                   style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 24),
-                CircleAvatar(
+                const SizedBox(height: 24),
+                const CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
                   child: Icon(Icons.check, color: Color(0xFF4CAF50), size: 40),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
-                  '₹ 1.00',
-                  style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                  '₹ ${amount.isEmpty ? "1.00" : amount}',
+                  style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Transfer to Family or friends',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  remark,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ],
             ),
@@ -52,15 +65,18 @@ class TransactionSuccessScreen extends StatelessWidget {
                           CircleAvatar(
                             radius: 18,
                             backgroundColor: Colors.purple.shade50,
-                            child: const Text('SK', style: TextStyle(color: AppColors.primaryPurple, fontSize: 12)),
+                            child: Text(
+                              payeeName.isNotEmpty ? payeeName[0].toUpperCase() : 'P', 
+                              style: const TextStyle(color: AppColors.primaryPurple, fontSize: 12)
+                            ),
                           ),
                           const SizedBox(width: 12),
-                          const Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Shubham Kumar', style: TextStyle(fontWeight: FontWeight.bold)),
-                              Text('PUNJAB NATIONAL BANK:', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
-                              Text('1255000105261585', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
+                              Text(payeeName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text('${bankName.toUpperCase()}:', style: const TextStyle(fontSize: 11, color: AppColors.textGrey)),
+                              Text(accountNumber, style: const TextStyle(fontSize: 11, color: AppColors.textGrey)),
                             ],
                           ),
                         ],
@@ -104,7 +120,7 @@ class TransactionSuccessScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     _buildInfoCard([
                       const Text('Debit Account', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
-                      const Text('Savings Account - 20451208881', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      const Text('Savings Account - XXXXXXXX1234', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                       const SizedBox(height: 12),
                       const Text('Transaction Number', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
                       const Text('Y2M1239803510304804864', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
