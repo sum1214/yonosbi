@@ -317,7 +317,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Divider(color: Colors.white.withValues(alpha: 0.2), height: 1),
+                    child: Divider(color: Colors.white.withOpacity(0.2), height: 1),
                   ),
                 ],
               )),
@@ -731,7 +731,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         ],
                       ),
                     ),
-                    Icon(Icons.hourglass_bottom, size: 120, color: const Color(0xFFEDE7F6).withValues(alpha: 0.8)),
+                    Icon(Icons.hourglass_bottom, size: 120, color: const Color(0xFFEDE7F6).withOpacity(0.8)),
                     Container(
                       width: 80,
                       height: 160,
@@ -740,7 +740,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppColors.primaryPurple, width: 2),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 5)),
+                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5)),
                         ],
                       ),
                       child: Column(
@@ -773,12 +773,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     Positioned(
                       right: 20,
                       top: 40,
-                      child: Transform.rotate(angle: 0.5, child: Icon(Icons.subdirectory_arrow_right, color: AppColors.primaryPurple.withValues(alpha: 0.3), size: 30)),
+                      child: Transform.rotate(angle: 0.5, child: Icon(Icons.subdirectory_arrow_right, color: AppColors.primaryPurple.withOpacity(0.3), size: 30)),
                     ),
                     Positioned(
                       left: 20,
                       bottom: 60,
-                      child: Transform.rotate(angle: -2.5, child: Icon(Icons.subdirectory_arrow_right, color: AppColors.primaryPurple.withValues(alpha: 0.3), size: 30)),
+                      child: Transform.rotate(angle: -2.5, child: Icon(Icons.subdirectory_arrow_right, color: AppColors.primaryPurple.withOpacity(0.3), size: 30)),
                     ),
                   ],
                 ),
@@ -912,9 +912,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        Icon(Icons.filter_list, color: AppColors.primaryPurple.withValues(alpha: 0.7)),
+        Icon(Icons.filter_list, color: AppColors.primaryPurple.withOpacity(0.7)),
         const SizedBox(width: 12),
-        Icon(Icons.swap_vert, color: AppColors.primaryPurple.withValues(alpha: 0.7)),
+        Icon(Icons.swap_vert, color: AppColors.primaryPurple.withOpacity(0.7)),
       ],
     );
   }

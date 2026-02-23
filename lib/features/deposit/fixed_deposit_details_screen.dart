@@ -244,7 +244,7 @@ class _FixedDepositDetailsScreenState extends State<FixedDepositDetailsScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Divider(color: Colors.white.withValues(alpha: 0.2), height: 1),
+                        child: Divider(color: Colors.white.withOpacity(0.2), height: 1),
                       ),
                     ],
                   )),
@@ -550,7 +550,7 @@ class _FixedDepositDetailsScreenState extends State<FixedDepositDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryPurple.withValues(alpha: 0.5)),
+        border: Border.all(color: AppColors.primaryPurple.withOpacity(0.5)),
       ),
       child: Row(
         children: [
@@ -606,8 +606,7 @@ class _FixedDepositDetailsScreenState extends State<FixedDepositDetailsScreen> {
     double? enteredAmount = double.tryParse(_amountController.text);
     bool isErrorVisible = _amountController.text.isNotEmpty && (enteredAmount == null || enteredAmount < 1000);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column( crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Enter Amount', style: TextStyle(color: Colors.grey, fontSize: 12)),
         const SizedBox(height: 4),

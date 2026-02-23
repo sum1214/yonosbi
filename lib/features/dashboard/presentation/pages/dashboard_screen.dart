@@ -497,7 +497,7 @@ class TransactionCard extends StatelessWidget {
                     child: Container(
                       width: width * 0.8,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFAD1457).withValues(alpha: 0.4),
+                        color: const Color(0xFFAD1457).withOpacity(0.4),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -516,7 +516,7 @@ class TransactionCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.refresh,
-                            color: Colors.white.withValues(alpha: state.isRefreshing ? 0.5 : 1.0),
+                            color: Colors.white.withOpacity(state.isRefreshing ? 0.5 : 1.0),
                             size: width * 0.12,
                           ),
                           if (state.isRefreshing)
@@ -571,7 +571,7 @@ class TransactionCard extends StatelessWidget {
                         Text(
                           'Combined Balance',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: Colors.white.withOpacity(0.9),
                             fontSize: width * 0.055,
                           ),
                         ),

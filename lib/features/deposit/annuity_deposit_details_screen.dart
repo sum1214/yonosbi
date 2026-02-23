@@ -222,7 +222,7 @@ class _AnnuityDepositDetailsScreenState extends State<AnnuityDepositDetailsScree
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryPurple.withValues(alpha: 0.5)),
+        border: Border.all(color: AppColors.primaryPurple.withOpacity(0.5)),
       ),
       child: Row(
         children: [
