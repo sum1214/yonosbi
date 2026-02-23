@@ -315,7 +315,9 @@ class DashboardScreen extends StatelessWidget {
       _gridItem(Icons.account_balance, 'Pay to Bank\nA/C', onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const BankAccountLandingScreen()));
       }),
-      _gridItem(Icons.history, 'View\nTransaction'),
+      _gridItem(Icons.history, 'View\nTransaction', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const TransactionsScreen()));
+      }),
     ]);
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
 import 'package:yonosbi/features/deposit/annuity_deposit_details_screen.dart';
+import 'package:yonosbi/features/deposit/payout_calculator_screen.dart';
 import 'recurring_deposit_details_screen.dart';
 import 'interest_rates_screen.dart';
 import 'manage_deposits_screen.dart';
@@ -222,7 +223,16 @@ class DepositsScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildBottomActionItem(Icons.calculate_outlined, 'Payout Calculator'),
+        _buildBottomActionItem(
+            Icons.calculate_outlined,
+            'Payout Calculator',
+          onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PayoutCalculatorScreen()),
+              );
+          }
+        ),
         _buildBottomActionItem(
           Icons.trending_up,
           'Interest Rates',
