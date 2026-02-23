@@ -12,7 +12,7 @@ import '../../../payments/upi/presentation/pages/manual_upi_pay_screen.dart';
 import '../../../payments/upi/presentation/pages/scanner_screen.dart';
 import 'transactions_screen.dart';
 import 'accounts_screen.dart';
-import 'deposits_screen.dart';
+import '../../../deposit/deposits_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -322,9 +322,15 @@ class DashboardScreen extends StatelessWidget {
       _gridItem(Icons.savings_outlined, 'Fixed\nDeposit', onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const DepositsScreen()));
       }),
-      _gridItem(Icons.update, 'Recurring\nDeposit'),
-      _gridItem(Icons.calendar_today, 'Annuity\nDeposit'),
-      _gridItem(Icons.sync_alt, 'Auto Sweep'),
+      _gridItem(Icons.update, 'Recurring\nDeposit', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const DepositsScreen()));
+      }),
+      _gridItem(Icons.calendar_today, 'Annuity\nDeposit', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const DepositsScreen()));
+      }),
+      _gridItem(Icons.sync_alt, 'Auto Sweep', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const DepositsScreen()));
+      }),
     ]);
   }
 

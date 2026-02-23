@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yonosbi/core/constants/app_colors.dart';
+import 'package:yonosbi/features/deposit/annuity_deposit_details_screen.dart';
+import 'recurring_deposit_details_screen.dart';
+import 'interest_rates_screen.dart';
 import 'manage_deposits_screen.dart';
 import 'open_fixed_deposit_screen.dart';
 
@@ -48,7 +51,7 @@ class DepositsScreen extends StatelessWidget {
             ),
             _buildDepositGrid(context),
             const SizedBox(height: 40),
-            _buildBottomActions(),
+            _buildBottomActions(context),
             const SizedBox(height: 20),
           ],
         ),
@@ -126,12 +129,24 @@ class DepositsScreen extends StatelessWidget {
             icon: Icons.update,
             title: 'Recurring Deposit',
             subtitle: 'One-time deposit creation that ensures you save every month',
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RecurringDepositDetailsScreen()),
+              );
+            },
           ),
           _buildDepositOption(
             context: context,
             icon: Icons.calendar_today_outlined,
             title: 'Annuity Deposit',
             subtitle: 'Invest once and get returns every month',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AnnuityDepositDetailsScreen()),
+              );
+            },
           ),
           _buildDepositOption(
             context: context,
@@ -203,39 +218,51 @@ class DepositsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomActions() {
+  Widget _buildBottomActions(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildBottomActionItem(Icons.calculate_outlined, 'Payout Calculator'),
-        _buildBottomActionItem(Icons.trending_up, 'Interest Rates'),
+        _buildBottomActionItem(
+          Icons.trending_up,
+          'Interest Rates',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const InterestRatesScreen()),
+            );
+          },
+        ),
         _buildBottomActionItem(Icons.help_outline, 'FAQs'),
       ],
     );
   }
 
-  Widget _buildBottomActionItem(IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
+  Widget _buildBottomActionItem(IconData icon, String label, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Icon(icon, color: Colors.grey.shade600, size: 24),
           ),
-          child: Icon(icon, color: Colors.grey.shade600, size: 24),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey.shade700,
-            fontWeight: FontWeight.w500,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
